@@ -188,19 +188,19 @@ void sendDataToScope(void)
 {
   uint8 i,sum=0; 
   //使用轮询的方式发送数据，当数据未发送，程序停在此处直到发送完成
-  uart_putchar(UART4,251) ;//USendOneByte(FreeCarsUARTPort,251);
-  uart_putchar(UART4,109) ;//USendOneByte(FreeCarsUARTPort,109);
-  uart_putchar(UART4,37) ;//USendOneByte(FreeCarsUARTPort,37);
+  uart_putchar_toscope(UART4,251) ;//USendOneByte(FreeCarsUARTPort,251);
+  uart_putchar_toscope(UART4,109) ;//USendOneByte(FreeCarsUARTPort,109);
+  uart_putchar_toscope(UART4,37) ;//USendOneByte(FreeCarsUARTPort,37);
 
   sum+=(251);      //全部数据加入校验
   sum+=(109);
   sum+=(37);
   for(i=0;i<FreeCarsDataNum;i++)
   {
-     uart_putchar(UART4,uSendBuf[i]) ;    //USendOneByte(FreeCarsUARTPort,uSendBuf[i]);
+     uart_putchar_toscope(UART4,uSendBuf[i]) ;    //USendOneByte(FreeCarsUARTPort,uSendBuf[i]);
     sum+=uSendBuf[i];         //全部数据加入校验
   }
-   uart_putchar(UART4,sum);// USendOneByte(FreeCarsUARTPort,sum);
+   uart_putchar_toscope(UART4,sum);// USendOneByte(FreeCarsUARTPort,sum);
 }
 /*******************************************************************************
  *  @brief      Freecars_scope
@@ -215,10 +215,10 @@ void Freecars_scope(void)
   int i;
    //100ms发送一次数据（所有通道）到示波器，也可以使用delayms(100)的方式
      // DELAY_MS(5);
-       OutData[0] = adc_once(ADC1_SE11, ADC_12bit);//ADC_Value[0];//(int)speed_forecast_left;//ADC_Value[0];//adc_once(ADC1_SE10, ADC_12bit);
-       OutData[1] = adc_once(ADC1_SE12, ADC_12bit);//ADC_Value[1];//speedctrl_left;//ADC_Value[1];//;
-       OutData[2] = adc_once(ADC1_SE14, ADC_12bit);//ADC_Value[2];//speed_now_left;//ADC_Value[2];//;
-       OutData[3] = adc_once(ADC1_SE15, ADC_12bit);//ADC_Value[3];
+       OutData[0] = adc_once(ADC1_SE10, ADC_12bit);//ADC_Value[0];//(int)speed_forecast_left;//ADC_Value[0];//adc_once(ADC1_SE10, ADC_12bit);
+       OutData[1] = adc_once(ADC1_SE13, ADC_12bit);//ADC_Value[1];//speedctrl_left;//ADC_Value[1];//;
+       OutData[2] = adc_once(ADC1_SE15, ADC_12bit);//ADC_Value[2];//speed_now_left;//ADC_Value[2];//;
+       OutData[3] = adc_once(ADC1_SE14, ADC_12bit);//ADC_Value[3];
        for(i=1;i<UartDataNum;i++)
        {
          push(i,OutData[i-1]);
