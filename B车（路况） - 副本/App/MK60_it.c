@@ -165,6 +165,7 @@ void PORTB_IRQHandler(void)
          times = 0;//清空停车时间计时
          huandao_flag_a = 0; huandao_flag_b = 0;//huandao_flag_c = 0; 
          huandao_flag_d = 0; huandao_flag_e = 0; //huandao_flag_f = 0;
+         last_stop = 0;
          DELAY_MS(300);
         /*  以上为用户任务  */
     }
