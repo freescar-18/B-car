@@ -162,10 +162,10 @@ void PORTB_IRQHandler(void)
          flag = 0;
           ones = 1;
          jishu = 0;
-         times = 0;//清空停车时间计时
+         times = 0;//清空定时停车时间计时
          huandao_flag_a = 0; huandao_flag_b = 0;//huandao_flag_c = 0; 
          huandao_flag_d = 0; huandao_flag_e = 0; //huandao_flag_f = 0;
-         last_stop = 0;
+         last_stop = 0;  //清空重点线停车，即重启
          DELAY_MS(300);
         /*  以上为用户任务  */
     }
@@ -176,6 +176,7 @@ void PORTB_IRQHandler(void)
         PORTB_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
+
       //  motorctrl_test = motorctrl_test - 50;
       //  steering_test = steering_test - 2;
         
