@@ -53,11 +53,13 @@ void main()
     
     
    // 设置中断优先级  越小越优先 15个级别
-    set_irq_priority(PORTA_IRQn,0); 
-    set_irq_priority(PORTB_IRQn,1);
-    set_irq_priority(PORTE_IRQn,2);
-    set_irq_priority(PIT1_IRQn,3);
-    set_irq_priority(PIT0_IRQn,4);
+    set_irq_priority(PIT2_IRQn,0);
+    set_irq_priority(PORTC_IRQn,1);
+    set_irq_priority(PORTB_IRQn,2);
+    set_irq_priority(PORTA_IRQn,3);
+    set_irq_priority(PORTE_IRQn,4);
+    set_irq_priority(PIT1_IRQn,5);
+    set_irq_priority(PIT0_IRQn,6);
     
     DisableInterrupts;
     DELAY_MS(10);
