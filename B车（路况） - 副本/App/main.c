@@ -43,6 +43,9 @@ void main()
     pit_init_ms(PIT1, PIT1_TIMER);                                
     set_vector_handler(PIT1_VECTORn ,PIT1_IRQHandler); //设置PIT1的中断服务函数为 PIT1_IRQHandler
     enable_irq(PIT1_IRQn); // 使能PIT1中断,车子开始动
+    set_vector_handler(UART4_RX_TX_VECTORn , uart4_test_handler);//设置中断级别
+   // uart_rx_irq_en(UART4);//蓝牙窗口中断使能
+    
 
     //enable_irq(PIT0_IRQn); 
     
