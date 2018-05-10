@@ -77,7 +77,7 @@ void main()
        }  */
        oled_view();
      
-      Freecars_scope();
+      // Freecars_scope(); 我改了这里
        
      //  test_motor(); 
       //  test_steering();
