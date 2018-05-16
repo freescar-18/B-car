@@ -19,8 +19,8 @@ uint8 car_dis_ms = 0; //超声波测高电平的时间 单位ms
 extern uint16 start_flag;
 char bluetooth_data=0;//接收到的数据存在这个变量
 uint8 car_dis_times = 0;
-uint8 now_vol = 0;
-uint8 last_vol = 0;
+uint8 now_vol = 0;//现在的电平
+uint8 last_vol = 0;//上次的电平
 extern uint8 level;
 extern uint16 last_stop; 
 /******************************************************************************* 

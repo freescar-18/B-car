@@ -53,11 +53,11 @@ void PIT_Initialization(void)
    // pit_init_ms(PIT1, PIT1_TIMER);                                
     //set_vector_handler(PIT1_VECTORn ,PIT1_IRQHandler); //设置PIT1的中断服务函数为 PIT1_IRQHandler
     //初始化PIT2
-    //pit_init_ms(PIT2, PIT2_TIMER);                                
-    //set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //设置PIT2的中断服务函数为 PIT2_IRQHandler
+    pit_init_ms(PIT2, PIT2_TIMER);                                
+    set_vector_handler(PIT2_VECTORn ,PIT2_IRQHandler); //设置PIT2的中断服务函数为 PIT2_IRQHandler
     //初始化PIT3
-    pit_init_ms(PIT3, PIT3_TIMER);                                
-    set_vector_handler(PIT3_VECTORn ,PIT3_IRQHandler); //设置PIT3的中断服务函数为 PIT3_IRQHandler
+    //pit_init_ms(PIT3, PIT3_TIMER);                                
+    //set_vector_handler(PIT3_VECTORn ,PIT3_IRQHandler); //设置PIT3的中断服务函数为 PIT3_IRQHandler
 }
 
 /*!
@@ -167,6 +167,7 @@ void ISR_Initialization(void)
     enable_irq (PORTE_IRQn); //使能PORTE中断
     enable_irq (PORTA_IRQn); //使能PORTE中断
     enable_irq (PORTB_IRQn); //使能PORTE中断
+    enable_irq (PORTC_IRQn); //使能PORTE中断
    // DisableInterrupts;
    // beep_on();  //初始化成功响一下
    // DELAY();
