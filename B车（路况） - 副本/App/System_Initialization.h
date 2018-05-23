@@ -22,18 +22,18 @@ void OLED_Initialization(void); //OLED初始化
 void System_Initialization(void); //总初始化
 
 /****************************  宏定义  ****************************************/
-#define  PIT0_TIMER  (1000)  //定时器 0 所用的时间
+#define  PIT0_TIMER  (5)  //定时器 0 所用的时间
 #define  PIT1_TIMER  (5)  //定时器 1 所用的时间
-#define  PIT2_TIMER  (3000)  //定时器 2 所用的时间
+#define  PIT2_TIMER  (1000)  //定时器 2 所用的时间
 #define  PIT3_TIMER  (4000)  //定时器 3 所用的时间 
 
-#define Midsteering 768
-#define Minsteering 680  //right
-#define Maxsteering 855 //left 左转
+#define Midsteering 1540   // 768  1380
+#define Minsteering 1380  //right  680   1540 
+#define Maxsteering 1715 //left 左转  855   1715
 
 #define  S3010_FTM   FTM1
 #define  S3010_CH    FTM_CH0 //FTM1_CH0_PIN   PTB0
-#define  S3010_HZ    (50)
+#define  S3010_HZ    (100)
 
 #define MOTOR_HZ    (13*1000)
 

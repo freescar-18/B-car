@@ -33,9 +33,11 @@ float speed_forecast_right = 0;  //右轮预测车速
 float speed_power = 1;
 float speed_eRule[5] = {0,20,40,60,80}; //输入误差（speed_fe）的范围                                  
 float speed_ecRule[5] = {0,10,20,30,40}; //输入误差的变化率（speed_fec）的范围
-float speed_Rule[5] = {36,40,41,41,42}; //输出预测速度（speed_forecast）的范围 
-float speed_error_Rule[5] = {15,12,11,7,0};  //预测速度偏差的范围
+//float speed_Rule[5] = {18,19,20,21,22}; //输出预测速度（speed_forecast）的范围 
+//float speed_error_Rule[5] = {7,6,5,4,0};  //预测速度偏差的范围
                                           //
+float speed_Rule[5] = {36,37,38,39,40}; //输出预测速度（speed_forecast）的范围 
+float speed_error_Rule[5] = {15,12,9,7,0};  //预测速度偏差的范围
 int speed_rule[6][6] =   //速度规则表
 {
   //ec 0 1 2 3 4  //e
@@ -89,6 +91,7 @@ int speed_rule_kd[6][6]=  //d值规则表
       {5,5,5,5,5,5} //
 };
 
+uint8 speed_error_power = 1;
 
 /*******************************************************************************
  *  @brief      speed_fuzzy_mem_cal_forecast函数
@@ -217,6 +220,7 @@ void speed_fuzzy_solve_forecast(void)//解模糊得到pd值
     if( speed_forecast > 45) speed_forecast = 45;
     if( speed_forecast_error > 30) speed_forecast_error = 30;
     speed_forecast = speed_power * speed_forecast;
+    speed_forecast_error = speed_error_power * speed_forecast_error;
 }
 
 /*******************************************************************************

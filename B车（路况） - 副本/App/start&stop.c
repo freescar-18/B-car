@@ -34,7 +34,8 @@ int16 dis_left = 0;//左轮走的总距离
 int16 dis_right = 0;//右轮走的总距离
 extern float P_power;
 extern float D_power;
-uint16 dis_back = 1200;//倒车后退的距离，会有惯性滑行一下
+uint16 dis_back = 3000;//倒车后退的距离，会有惯性滑行一下
+uint16 speed = 1300;
 
 /*******************************************************************************
  *  @brief      start_car(void) 
@@ -51,16 +52,8 @@ void start_car(void)
       
             /*****  Part 1 信息采集 舵机速度PID *****/
             MessageProcessing(); //信息采集
-            ADCnormal(); //采集的信息归一化
-        
+            ADCnormal(); //采集的信息归一化  
             
- /**/       fe_last = fe;  //记录上一次的值  (ADC_Normal[0] * ADC_Normal[0])
- /**/       fe1 =  sqrt(  ADC_Normal[3] * ADC_Normal[3] );
- /**/       fe2 =  sqrt(  ADC_Normal[1] * ADC_Normal[1] + ADC_Normal[0] * ADC_Normal[0] );
- /**/       fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);
- /**/       fec = fe - fe_last;  //算出变化率      
-           
- 
          // road_check();
             fuzzy_mem_cal(); //对输入的 fe（误差） 和 fec（误差变化率） 查询隶属度
             fuzzy_query(); //查询模糊规则表
@@ -80,9 +73,10 @@ void start_car(void)
             speedcontrol_right(); 
          // Road_Id_Get();
             
-  /**/      if(ADC_Normal[2] < 0.3  && ADC_Normal[1] < 0.05)  steerctrl = Maxsteering; //左电感太小，向左打角
-  /**/      else if(ADC_Normal[2] > 0.1 && ADC_Normal[1] > 0.6)  steerctrl = Minsteering; //右电感太大，向右打角
-
+  /**/      //if(ADC_Normal[2] < 0.3  && ADC_Normal[1] < 0.05)  steerctrl = Maxsteering; //左电感太小，向左打角
+  /**/      //else if(ADC_Normal[2] > 0.1 && ADC_Normal[1] > 0.6)  steerctrl = Minsteering; //右电感太大，向右打角
+            if( ADC_Normal[2] < 0.4 &&  ADC_Normal[1] < 0.2)  steerctrl = Maxsteering;
+            else steerctrl = Minsteering;
             
             /////////////////////////////舵机///////////////////////////////////////
             if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
@@ -90,37 +84,13 @@ void start_car(void)
             ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
             ////////////////////////////////////////////////////////////////////////
             
-            ///////////////////////////左轮速度/////////////////////////////////////
-            if(0)  //左轮速度溢出  
-            {
-                if(speedctrl_left < -200) speedctrl_left_opp = 200;
-                else speedctrl_left_opp = -speedctrl_left;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,speedctrl_left_opp); //输出电机PWM  
-            }
-            else  //左轮速度没溢出
-            {   
-                if(speedctrl_left < 1500) speedctrl_left = 1500;
-                if(speedctrl_left > 1500) speedctrl_left = 1500;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
+            ///////////////////////////左轮速度/////////////////////////////////////  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,2000); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
-            }
             ////////////////////////////////////////////////////////////////////////
             /////////////////////////////右轮速度////////////////////////////////////
-            if(0)  //右轮速度溢出
-            {
-                if(speedctrl_right < -200) speedctrl_right_opp = 200;
-                else speedctrl_right_opp = -speedctrl_right;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,speedctrl_right_opp); //输出电机PWM  
-            }
-            else  //右轮速度没溢出
-            {
-                if(speedctrl_right < 1500) speedctrl_right = 1500;
-                if(speedctrl_right > 1500) speedctrl_right = 1500;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,2000); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
-            }
             ///////////////////////////////////////////////////////////////////////
             ////////////////////////////停车///////////////////////////////////////
             if((ADC_Value[0] <= 10) && (ADC_Value[1] <= 10) && (ADC_Value[2] <= 10) && (ADC_Value[3] <= 10) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
@@ -143,6 +113,7 @@ void start_car(void)
  ******************************************************************************/
 void stop_car(void)
 {
+            last_stop++;             
             speed_now_right = ftm_quad_get(FTM2);  //right轮
 	    speed_now_left = (int)( 2.46 * (lptmr_pulse_get()) );  //4000 - 1m   20 - 1m/s  left轮
 	    if(speed_now_right < 0) speed_now_right = -speed_now_right;//右轮不算负的，用于快速反转
@@ -154,7 +125,7 @@ void stop_car(void)
 	    MessageProcessing(); //信息采集
     	    ADCnormal(); //采集的信息归一化
 	    ADCerror_diff(); //偏差法计算 误差 和 误差的变化率
-		   // road_check(); 
+            // road_check(); 
 		
 	    if(none_steerctrl == 0)
 	    {
@@ -253,8 +224,15 @@ void turn_car(void)
 	    /*****  Part 1 信息采集 舵机速度PID *****/
 	    MessageProcessing(); //信息采集
     	    ADCnormal(); //采集的信息归一化
-	    ADCerror_diff(); //偏差法计算 误差 和 误差的变化率
-		   // road_check(); 
+/**/        fe_last = fe;  //记录上一次的值  (ADC_Normal[0] * ADC_Normal[0])
+/**/        fe1 =  sqrt( ADC_Normal[2] * ADC_Normal[2] + ADC_Normal[3] * ADC_Normal[3] );
+/**/        fe2 =  sqrt(  ADC_Normal[1] * ADC_Normal[1] + ADC_Normal[0] * ADC_Normal[0] );
+/**/        fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);      
+
+/**/        fe = -fe;
+
+/**/        fec = fe - fe_last;  //算出变化率
+            // road_check(); 
 		
 	    if(none_steerctrl == 0)
 	    {
@@ -263,7 +241,7 @@ void turn_car(void)
 		fuzzy_solve(); //解模糊
 		steercontrol(); //舵机控制，输出 steerctrl 为舵机转角
 	    }
-			/*
+            /*
 	    if(gpio_get(PTE10) == 0)  
 	    { 
 		beep_on();
@@ -275,7 +253,7 @@ void turn_car(void)
             ////////////////////////////////////
             flag = 0;
             dis_right += speed_now_right;
-            if( dis_right < - dis_back ) //倒车后退的距离
+            if( dis_right <  - dis_back ) //倒车后退的距离
             {
                 beep_off();
                 flag = 1;
@@ -306,7 +284,7 @@ void turn_car(void)
             //    if(speedctrl_left < -2000) speedctrl_left_opp = 2000;
             //    else speedctrl_left_opp = -speedctrl_left;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,1500); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,1250); //输出电机PWM  
             }
             else  //左轮速度没溢出  
             {
@@ -321,7 +299,7 @@ void turn_car(void)
             //    if(speedctrl_right < -8000) speedctrl_right_opp = 8000;
             //    else speedctrl_right_opp = -speedctrl_right;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,1500); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,1300); //输出电机PWM  
             }
             else  //右轮速度没溢出
             {

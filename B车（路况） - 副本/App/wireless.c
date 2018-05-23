@@ -9,14 +9,16 @@ int16 send_b=10000;//10000对应万位，以此类推
 /************以下是FreeCars2.0协议变量**************/
 extern uint8 uSendBuf[UartDataNum*2]={0};                //****UartDataNum是上位机设置通道数目，需保持一致
 extern uint8 FreeCarsDataNum=UartDataNum*2;
-/*
+
 extern float speed_forecast_left;
 extern float speed_forecast_right;
 extern int16 speedctrl_left;
 extern int16 speedctrl_right;
 extern int16 speed_now_left,speed_now_right;
 extern float speed_fe; 
-*/
+extern float fe,fec,fe_last; 
+extern int16 steerctrl; 
+
 /*******************************************************************************
  *  @brief      CRC_CHECK函数
  *  @note       直接放入main中while（1)里执行               
@@ -76,7 +78,7 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
 
  for(i=0;i<10;i++)
  {
- uart_putchar (UART5,(char)databuf[i]);
+ uart_putchar (UART4,(char)databuf[i]);
  }
  }
 
@@ -89,11 +91,11 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
 7.  移植时，移植时要注意到，send_b，OutData[]，已经在text.c文件定义*/
  void OutPut_Data_test(void)
  {
-  OutData[0] = 12345;//adc_once(ADC1_SE10, ADC_12bit);
-  OutData[1] = 12345;//adc_once(ADC1_SE12, ADC_12bit);
+  OutData[0] = steerctrl;//adc_once(ADC1_SE10, ADC_12bit);
+  OutData[1] = (int)(fe + 1540);//adc_once(ADC1_SE12, ADC_12bit);
     //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
-  OutData[2] = 12345;//adc_once(ADC1_SE14, ADC_12bit);
-  OutData[3] = 12345;//adc_once(ADC1_SE15, ADC_12bit);
+  OutData[2] = 1540;//adc_once(ADC1_SE14, ADC_12bit);
+  OutData[3] = 0;//adc_once(ADC1_SE15, ADC_12bit);
   OutPut_Data();
   //printf("ADC_FroBack_6[1]=%d\n",OutData[0]);
  }
@@ -140,25 +142,25 @@ void OutPut_Data_test_sscom(void)
   databuff[2]=50;
   databuff[3]=50;
  */ 
-  uart_putchar (UART5,'a');//在串口助手上显示第数据的识别符，例如：发送12345，串口上显示a12345
+  uart_putchar (UART4,'a');//在串口助手上显示第数据的识别符，例如：发送12345，串口上显示a12345
    for(l=0;l<5;l++)//发送OutData[]第一个数据//此段位发送储存的数据
    {
-     uart_putchar (UART5,(char)databuff[l*4]);
+     uart_putchar (UART4,(char)databuff[l*4]);
     }
-   uart_putchar (UART5,'b');
+   uart_putchar (UART4,'b');
    for(l=0;l<5;l++)//发送OutData[]第二个数据
    {
-     uart_putchar (UART5,(char)databuff[l*4+1]);
+     uart_putchar (UART4,(char)databuff[l*4+1]);
     }
-   uart_putchar (UART5,'c');
+   uart_putchar (UART4,'c');
    for(l=0;l<5;l++)//发送OutData[]第三个数据
    {
-     uart_putchar (UART5,(char)databuff[l*4+2]);
+     uart_putchar (UART4,(char)databuff[l*4+2]);
     }
-   uart_putchar (UART5,'d');
+   uart_putchar (UART4,'d');
    for(l=0;l<5;l++)//发送OutData[]第四个数据
    {
-     uart_putchar (UART5,(char)databuff[l*4+3]);
+     uart_putchar (UART4,(char)databuff[l*4+3]);
     }
 }
 

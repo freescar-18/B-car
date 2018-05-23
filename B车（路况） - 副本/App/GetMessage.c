@@ -46,7 +46,7 @@ extern int16 steerctrl;
 extern int16 last_steerctrl;
 extern int16 speed_forecast;
 
-uint8 level;
+uint8 level = 1;
 float dreams = 0.07;
 uint16 cross = 0;
 uint16 cross_pass = 0;

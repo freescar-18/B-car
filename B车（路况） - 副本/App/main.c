@@ -44,7 +44,7 @@ void main()
     set_vector_handler(PIT1_VECTORn ,PIT1_IRQHandler); //设置PIT1的中断服务函数为 PIT1_IRQHandler
     enable_irq(PIT1_IRQn); // 使能PIT1中断,车子开始动
     set_vector_handler(UART4_RX_TX_VECTORn , uart4_test_handler);//设置中断级别
-   // uart_rx_irq_en(UART4);//蓝牙窗口中断使能
+    uart_rx_irq_en(UART4);//蓝牙窗口中断使能
     
 
     //enable_irq(PIT0_IRQn); 
@@ -56,14 +56,13 @@ void main()
     
     
    // 设置中断优先级  越小越优先 15个级别
-    set_irq_priority(PIT2_IRQn,0);
-    set_irq_priority(PORTC_IRQn,1);
-    set_irq_priority(PORTB_IRQn,2);
-    set_irq_priority(PORTA_IRQn,3);
-    set_irq_priority(PORTE_IRQn,4);
-    set_irq_priority(PIT1_IRQn,5);
-    set_irq_priority(PIT0_IRQn,6);
-    
+    set_irq_priority(PIT0_IRQn,0);
+    set_irq_priority(PIT2_IRQn,1);
+        set_irq_priority(PIT1_IRQn,3);
+    set_irq_priority(PORTC_IRQn,4);
+    set_irq_priority(PORTB_IRQn,5);
+    set_irq_priority(PORTA_IRQn,6);
+    set_irq_priority(PORTE_IRQn,7);
     DisableInterrupts;
     DELAY_MS(10);
     EnableInterrupts; //同时启动中断   
@@ -85,7 +84,7 @@ void main()
       // Freecars_scope(); 我改了这里
        
      //  test_motor(); 
-      //  test_steering();
+     //   test_steering();
     // test_ADC();
      // test_max_ADC();
      //  OutPut_Data_test();//示波器调试  

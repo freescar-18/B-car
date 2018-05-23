@@ -35,7 +35,9 @@ extern uint8 car_dis_ms; //超声波测高电平的时间 单位ms
 extern uint16 start_flag;
 extern uint8 level;
 extern uint16 dis_right,dis_left;
-
+extern uint16 speed;
+extern uint16 delay_flag;
+extern uint16 dis_back;
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -63,8 +65,8 @@ void PORTA_IRQHandler(void)
         ones = 1;
         if(tab == 0) tab = 1;//切换键
         else tab = 0;
-        DELAY_MS(300);
-         
+/**/    start_flag = 200;
+        DELAY_MS(300); 
         /*  以上为用户任务  */
     }
     
@@ -83,7 +85,7 @@ void PORTA_IRQHandler(void)
             test_max_ADC_flash_write();
         }
         ones = 1;  // 只会写一次！！
-        
+       /* 
         if(tab == 0)
         {
         Rule_kp[0] = Rule_kp[0] - 0.1;
@@ -93,7 +95,7 @@ void PORTA_IRQHandler(void)
         {
         Rule_kd[0] = Rule_kd[0] - 0.01 *10;
         Rule_kd[1] = Rule_kd[1] - 0.01 *10;
-        }
+        }*/
          DELAY_MS(300); 
      }
         
@@ -117,7 +119,7 @@ void PORTB_IRQHandler(void)
          huandao_flag_a = 0; huandao_flag_b = 0;//huandao_flag_c = 0; 
          huandao_flag_d = 0; huandao_flag_e = 0; //huandao_flag_f = 0;
          last_stop = 0;  //清空停车，即重启
-         level = 0; //清空等级
+         level = 1; //清空等级
          start_flag = 0; //清空发车
          dis_right = 0; //清空车移动的距离
          DELAY_MS(300);
@@ -133,7 +135,7 @@ void PORTB_IRQHandler(void)
 
       //  motorctrl_test = motorctrl_test - 50;
       //  steering_test = steering_test - 2;
-        
+        /*
         if(tab == 0)
         {
           Rule_kp[4] = Rule_kp[4] + 0.1;
@@ -144,6 +146,7 @@ void PORTB_IRQHandler(void)
           Rule_kd[4] = Rule_kd[4] + 0.01 * 10;
           Rule_kd[3] = Rule_kd[3] + 0.01 * 10; 
         } 
+        */
          DELAY_MS(300);
         /*  以上为用户任务  */
     }
@@ -162,7 +165,13 @@ void PORTE_IRQHandler(void)
         /*  以下为用户任务  */
        // beep_on();
        // last_stop = 1; //最终停车标记
-
+        if(start_flag == 0 && level != 40 && level!= 100)
+        {
+/**/        level = 40;
+/**/        dis_back = 2000;
+/**/        last_stop = 0;
+/**/        dis_right = 0;
+        }
         /*  以上为用户任务  */
     }
 
