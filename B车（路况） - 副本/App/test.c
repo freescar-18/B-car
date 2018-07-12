@@ -57,6 +57,7 @@ extern float P_power;
 extern float D_power;
 extern uint8 speed_error_power;
 extern uint16 delay_flag;
+int16 first_steerctrl;
 
 
 /*******************************************************************************
@@ -150,7 +151,7 @@ void test_motor(void)
        // road_check();
         if( ADC_Normal[0] < 0.05 && ADC_Normal[3] < 0.05)
         {
-            P_power = 0.5;
+           // P_power = 0.5;
         }
         if(none_steerctrl == 0)
         {
@@ -182,13 +183,7 @@ void test_motor(void)
             speed_fuzzy_query_right();
             speed_fuzzy_solve_right();
             speedcontrol_right(); 
-         // Road_Id_Get();
-            
-            /////////////////////////////舵机///////////////////////////////////////
-            if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
-            if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护
-            ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
-            ////////////////////////////////////////////////////////////////////////
+         // Road_Id_Get();         
             
             ///////////////////////////左轮速度/////////////////////////////////////
             if(0)  //左轮速度溢出  
@@ -201,7 +196,7 @@ void test_motor(void)
             else  //左轮速度没溢出
             {   
                 if(speedctrl_left < 200) speedctrl_left = 200;
-                if(speedctrl_left > 4000) speedctrl_left = 4000;
+                if(speedctrl_left > 5850) speedctrl_left = 5850;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
             }
@@ -217,22 +212,14 @@ void test_motor(void)
             else  //右轮速度没溢出
             {
                 if(speedctrl_right < 200) speedctrl_right = 200;
-                if(speedctrl_right > 4000) speedctrl_right = 4000;
+                if(speedctrl_right > 5850) speedctrl_right = 5850;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
             }
-            ////////////////////////////////////////////////////////////////////////
-            ///////////////////////////记录数据/////////////////////////////////////    
-            if(u<3) u++; //由于第一次计算没有上一次的值，因此避开前几次的数据记录
-            else
-            {
-            if(speed_fec > speed_fec_max)  speed_fec_max = speed_fec; //记录最大fec
-            if(speed_forecast < speed_min)  speed_min = speed_forecast; //记录最小速度
-            }
-            ///////////////////////////////////////////////////////////////////////
-            ////////////////////////////停车///////////////////////////////////////
-            if((ADC_Value[0] <= 30) && (ADC_Value[1] <= 30) && (ADC_Value[2] <= 30) && (ADC_Value[3] <= 30) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
-            { 
+            ////////////////////////////////////////////////////////////////////////          
+           ////////////////////////////停车///////////////////////////////////////
+            if((ADC_Value[0] <= 50) && (ADC_Value[1] <= 50) && (ADC_Value[2] <= 50) && (ADC_Value[3] <= 50) ) //如果四个电感都偏小，则将flag变成1，然后进入下面的死循环
+            {               
                 if( delay_flag > 0 ) 
                 {
                     delay_flag--;           
@@ -240,15 +227,32 @@ void test_motor(void)
                 else
                 {
                     flag = 1; 
-                }
+                    ftm_pwm_duty(S3010_FTM, S3010_CH,first_steerctrl);  //输出舵机PWM
+                }                    
             }
+            else
+            {
+            /////////////////////////////舵机///////////////////////////////////////
+                if(steerctrl <  Minsteering) steerctrl =  Minsteering;  //舵机转角保护
+                if(steerctrl > Maxsteering) steerctrl = Maxsteering;  //舵机转角保护
+                if((ADC_Value[0] > 100) || (ADC_Value[1] > 100) || (ADC_Value[2] > 100) || (ADC_Value[3] > 100) ) 
+                {
+                    first_steerctrl = steerctrl;
+                }
+                ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
+            }
+            ////////////////////////////////////////////////////////////////////////
             if( flag == 1 ) // 进入死循环，电机停止转动，此时因为几十毫秒过去了，还是这么小，所以就停车了
             {          
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  right-正
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  left-正
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
-            } 
+                if(ADC_Value[0] > 50 || ADC_Value[1] > 50 || ADC_Value[2] > 50 || ADC_Value[3] > 50)
+                {
+                  flag = 0;
+                }
+            }
         }  
         P_power = 1;
 }
@@ -267,7 +271,7 @@ void test_motor(void)
 void test_steering(void)
 {
       ftm_pwm_duty(S3010_FTM, S3010_CH,steering_test);  //舵机转角
-      LED_PrintShort(50,7,steering_test);  //显示舵机PWM
+      //LED_PrintShort(50,7,steering_test);  //显示舵机PWM
 }
 
 /*******************************************************************************

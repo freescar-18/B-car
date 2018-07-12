@@ -3,6 +3,7 @@
 
 /**************************  定义变量  **************************************/
 extern uint16 ADC_Value[4];
+extern float ADC_Normal[4]; 
 //蓝牙模块发送的数据数组
 int16 OutData[4]={0,0,0,0};
 int16 send_b=10000;//10000对应万位，以此类推
@@ -18,6 +19,12 @@ extern int16 speed_now_left,speed_now_right;
 extern float speed_fe; 
 extern float fe,fec,fe_last; 
 extern int16 steerctrl; 
+extern float steer_P;
+extern float steer_D;
+extern int16 first_steerctrl;
+extern uint8 flag;
+extern int16 speedctrl_left;
+extern float speed_Rule[5];
 
 /*******************************************************************************
  *  @brief      CRC_CHECK函数
@@ -91,11 +98,11 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
 7.  移植时，移植时要注意到，send_b，OutData[]，已经在text.c文件定义*/
  void OutPut_Data_test(void)
  {
-  OutData[0] = steerctrl;//adc_once(ADC1_SE10, ADC_12bit);
-  OutData[1] = (int)(fe + 1540);//adc_once(ADC1_SE12, ADC_12bit);
+  OutData[0] = (int)(100 * ADC_Normal[0]);//adc_once(ADC1_SE10, ADC_12bit);
+  OutData[1] = (int)(100 * ADC_Normal[1]);//adc_once(ADC1_SE12, ADC_12bit);
     //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
-  OutData[2] = 1540;//adc_once(ADC1_SE14, ADC_12bit);
-  OutData[3] = 0;//adc_once(ADC1_SE15, ADC_12bit);
+  OutData[2] = (int)(100 * ADC_Normal[2]);//adc_once(ADC1_SE14, ADC_12bit);
+  OutData[3] = (int)(100 * ADC_Normal[3]);//adc_once(ADC1_SE15, ADC_12bit);
   OutPut_Data();
   //printf("ADC_FroBack_6[1]=%d\n",OutData[0]);
  }
@@ -113,11 +120,11 @@ void OutPut_Data_test_sscom(void)
   int16 databuff[20];
   unsigned char l;
   send_b=10000;//给这个数赋值
-  OutData[0] = ADC_Value[0];//adc_once(ADC1_SE10, ADC_12bit);
-  OutData[1] = ADC_Value[1];//adc_once(ADC1_SE12, ADC_12bit);
+  OutData[0] = (int)(ADC_Normal[0]*100);//adc_once(ADC1_SE10, ADC_12bit);
+  OutData[1] = (int)(100*ADC_Normal[1]);//adc_once(ADC1_SE12, ADC_12bit);
     //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
-  OutData[2] = ADC_Value[2];//adc_once(ADC1_SE14, ADC_12bit);
-  OutData[3] = ADC_Value[3];//adc_once(ADC1_SE15, ADC_12bit);
+  OutData[2] = (int)(100*ADC_Normal[2]);//adc_once(ADC1_SE14, ADC_12bit);
+  OutData[3] = (int)(100*ADC_Normal[3]);//adc_once(ADC1_SE15, ADC_12bit);
   //printf("ADC_FroBack_6[1]=%d\n",OutData[0]);
   for(l=0;l<5;l++)
   {  

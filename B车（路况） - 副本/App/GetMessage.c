@@ -68,8 +68,8 @@ void MessageProcessing(void)
         ADC_GetMessage[0][i] = adc_once(ADC1_SE10, ADC_12bit); //Green
         ADC_GetMessage[1][i] = adc_once(ADC1_SE13, ADC_12bit); //blue
         //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
-        ADC_GetMessage[2][i] = adc_once(ADC1_SE15, ADC_12bit); //orange
-        ADC_GetMessage[3][i] = adc_once(ADC1_SE14, ADC_12bit);  //brown
+        ADC_GetMessage[2][i] = adc_once(ADC1_SE14, ADC_12bit); //orange
+        ADC_GetMessage[3][i] = adc_once(ADC1_SE15, ADC_12bit);  //brown
     }
     
     for(i = 0;i < (SamplingNum - 1); i++)  //冒泡法排序 从小到大
@@ -134,7 +134,10 @@ void ADCerror_diff(void)
       fe_last = fe;  //记录上一次的值  (ADC_Normal[0] * ADC_Normal[0])
       fe1 =  sqrt( ADC_Normal[2] * ADC_Normal[2] + ADC_Normal[3] * ADC_Normal[3] );
       fe2 =  sqrt(  ADC_Normal[1] * ADC_Normal[1] + ADC_Normal[0] * ADC_Normal[0] );
-      fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);      
+      fe = (int)(( (sqrt(fe1) - sqrt(fe2)) / ( fe1 + fe2 ) ) * 100);   
+/**/  //if(fe > 300) fe = 300; //误差保护
+/**/  //if(fe < -300) fe = -300; //误差保护
+    
 /**///  if( ADC_Normal[0] > 0.5 && ADC_Normal[3] > 0.5 ) level = 40;
 /**///  if(level == 40) 
 /**/// {

@@ -58,7 +58,7 @@ void main()
    // 设置中断优先级  越小越优先 15个级别
     set_irq_priority(PIT0_IRQn,0);
     set_irq_priority(PIT2_IRQn,1);
-        set_irq_priority(PIT1_IRQn,3);
+    set_irq_priority(PIT1_IRQn,3);
     set_irq_priority(PORTC_IRQn,4);
     set_irq_priority(PORTB_IRQn,5);
     set_irq_priority(PORTA_IRQn,6);
@@ -84,12 +84,12 @@ void main()
       // Freecars_scope(); 我改了这里
        
      //  test_motor(); 
-     //   test_steering();
+      //  test_steering();
     // test_ADC();
      // test_max_ADC();
-     //  OutPut_Data_test();//示波器调试  
+       OutPut_Data_test();//示波器调试  
      //  gpio_turn(PTD15);  
-   //   OutPut_Data_test_sscom();//串口助手调试  
+ //    OutPut_Data_test_sscom();//串口助手调试  
       //MessageProcessing(); 
       //Road_Id_Get();
        //test_nrf_re();

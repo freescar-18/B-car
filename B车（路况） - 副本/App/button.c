@@ -38,6 +38,8 @@ extern uint16 dis_right,dis_left;
 extern uint16 speed;
 extern uint16 delay_flag;
 extern uint16 dis_back;
+extern uint8 shizi_flag;
+extern float DDD;
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -65,8 +67,13 @@ void PORTA_IRQHandler(void)
         ones = 1;
         if(tab == 0) tab = 1;//切换键
         else tab = 0;
-/**/    start_flag = 200;
-        DELAY_MS(300); 
+/**/    start_flag = 0;/*
+        speed_Rule[4] = 35;
+        speed_Rule[3] = 35;
+        speed_Rule[2] = 35;
+        speed_Rule[1] = 35;
+        speed_Rule[0] = 35;*/
+       //p DELAY_MS(300); 
         /*  以上为用户任务  */
     }
     
@@ -96,8 +103,15 @@ void PORTA_IRQHandler(void)
         Rule_kd[0] = Rule_kd[0] - 0.01 *10;
         Rule_kd[1] = Rule_kd[1] - 0.01 *10;
         }*/
-         DELAY_MS(300); 
+        DDD = DDD + 0.03;/*
+        speed_Rule[4] = 40;
+        speed_Rule[3] = 40;
+        speed_Rule[2] = 40;
+        speed_Rule[1] = 40;
+        speed_Rule[0] = 40;*/
+       //  DELAY_MS(300); 
      }
+    //  shizi_flag--;
         
         /*  以上为用户任务  */
     
@@ -112,7 +126,7 @@ void PORTB_IRQHandler(void)
         PORTB_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-         flag = 0; //清空停车位
+         /*flag = 0; //清空停车位
          ones = 1;
          jishu = 0;
          times = 0;//清空定时停车时间计时
@@ -121,8 +135,14 @@ void PORTB_IRQHandler(void)
          last_stop = 0;  //清空停车，即重启
          level = 1; //清空等级
          start_flag = 0; //清空发车
-         dis_right = 0; //清空车移动的距离
-         DELAY_MS(300);
+         dis_right = 0; //清空车移动的距离*/
+        flag = 0;/*
+        speed_Rule[4] = 45;
+        speed_Rule[3] = 45;
+        speed_Rule[2] = 45;
+        speed_Rule[1] = 45;
+        speed_Rule[0] = 45;*/
+         //DELAY_MS(300);
         /*  以上为用户任务  */
     }
     /////////////  PTB3 RIGHT 按键   ///////////////////////////////////////////
@@ -147,6 +167,13 @@ void PORTB_IRQHandler(void)
           Rule_kd[3] = Rule_kd[3] + 0.01 * 10; 
         } 
         */
+        //shizi_flag--;
+        DDD = DDD - 0.03;
+          /*        speed_Rule[4] = 42;
+        speed_Rule[3] = 42;
+        speed_Rule[2] = 42;
+        speed_Rule[1] = 42;
+        speed_Rule[0] = 42;*/
          DELAY_MS(300);
         /*  以上为用户任务  */
     }
@@ -167,10 +194,10 @@ void PORTE_IRQHandler(void)
        // last_stop = 1; //最终停车标记
         if(start_flag == 0 && level != 40 && level!= 100)
         {
-/**/        level = 40;
-/**/        dis_back = 2000;
-/**/        last_stop = 0;
-/**/        dis_right = 0;
+/**/      //  level = 40;
+/**/      //  dis_back = 2000;
+/**/      //  last_stop = 0;
+/**/      //  dis_right = 0;
         }
         /*  以上为用户任务  */
     }

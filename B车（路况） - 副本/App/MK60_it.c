@@ -32,13 +32,14 @@ uint8 shizi = 0;
 extern uint16 dis_back;
 extern float speed_power;
 uint16 gameover = 0;
+uint8 shizi_flag = 1;
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
  *  @note
  *  @warning
  ******************************************************************************/
 void PIT0_IRQHandler(void)
-{
+{/*
    if(times > 0)  
     {
       times--;
@@ -53,27 +54,29 @@ void PIT0_IRQHandler(void)
                 times = 130;
                 shizi++;
                 beep_on();
-                if( shizi == 4 )
+                if( shizi == shizi_flag + 3)
                 {    
                     uart_putchar (UART4,'3');
                     uart_putchar (UART4,'3');
                     uart_putchar (UART4,'3');
+                    speed_power = 0.5;
                     
                 }
-                if( shizi == 5 )
+                if( shizi == shizi_flag + 4)
                 {    
                     uart_putchar (UART4,'4');
                     uart_putchar (UART4,'4');
                     uart_putchar (UART4,'4');
+                    speed_power = 1;
                 }                
-                if( shizi == 6 )
+                if( shizi == shizi_flag + 5)
                 {
-                    speed_power = 0.4; //最后一个十字减速
+                    speed_power = 0.25; //最后一个十字减速
                 }
             }
         }
     }
-    
+   */ 
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }
 
@@ -118,12 +121,12 @@ void PIT1_IRQHandler(void)
     {
         gameover++;
         test_motor();
-        if(gameover > 200)  flag = 1;
+        if(gameover > 250)  flag = 1;
     }
      ///////////////////////////////////////////////////////////////////////////
     else 
     {
-        test_motor();
+       test_motor();
     } 
     //test_motor();
    //gpio_turn(PTD15); 
