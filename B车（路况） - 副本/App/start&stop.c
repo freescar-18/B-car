@@ -12,8 +12,8 @@
 #include    "AllFunction.h"
 
 /**************************  全局变量   ***************************************/
-extern float ADC_Normal[4];
-extern uint16 ADC_Value[4];
+extern float ADC_Normal[5];
+extern uint16 ADC_Value[5];
 extern float fe,fec;
 extern int16 steerctrl;
 extern int16 speedctrl_left,speedctrl_right; 
@@ -35,7 +35,6 @@ int16 dis_right = 0;//右轮走的总距离
 extern float P_power;
 extern float D_power;
 uint16 dis_back = 3000;//倒车后退的距离，会有惯性滑行一下
-uint16 speed = 1300;
 
 /*******************************************************************************
  *  @brief      start_car(void) 

@@ -27,12 +27,17 @@ uint16 delay_flag = 0; //用于周期延时使用
 extern uint16 flag;
 extern uint16 dis_right;
 uint8 wait_flag = 0;
-extern float ADC_Normal[4];
+extern float ADC_Normal[5];
 uint8 shizi = 0;
 extern uint16 dis_back;
 extern float speed_power;
+uint8 avoid_flag_shizi = 2;
+uint8 go_flag_shizi = 3;
+uint8 last_flag_shizi = 4;
+extern uint8 left_flag;
+extern uint8 right_flag;
 uint16 gameover = 0;
-uint8 shizi_flag = 1;
+float last_speed_power = 0.5;
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
  *  @note
@@ -54,7 +59,7 @@ void PIT0_IRQHandler(void)
                 times = 130;
                 shizi++;
                 beep_on();
-                if( shizi == shizi_flag + 3)
+                if( shizi == avoid_flag_shizi)
                 {    
                     uart_putchar (UART4,'3');
                     uart_putchar (UART4,'3');
@@ -62,21 +67,21 @@ void PIT0_IRQHandler(void)
                     speed_power = 0.5;
                     
                 }
-                if( shizi == shizi_flag + 4)
+                if( shizi == go_flag_shizi)
                 {    
                     uart_putchar (UART4,'4');
                     uart_putchar (UART4,'4');
                     uart_putchar (UART4,'4');
                     speed_power = 1;
                 }                
-                if( shizi == shizi_flag + 5)
+                if( shizi == last_flag_shizi)
                 {
-                    speed_power = 0.25; //最后一个十字减速
+                    speed_power = last_speed_power; //最后一个十字减速
                 }
             }
         }
     }
-   */ 
+    */
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }
 

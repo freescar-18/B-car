@@ -18,7 +18,8 @@ int16 steerctrl; // 输出的舵机转角PWM
 int16 last_steerctrl; // 上次输出的舵机转角PWM
 int16 steerctrl_error; //舵机转角的增量（可正可负） 加上舵机中间值即为舵机需要转角的PWM
 
-float steer_P,steer_D;  // 输出的 P 值 和 D 值
+float steer_P;
+float steer_D = 35;  // 输出的 P 值 和 D 值
 extern float fe,fec,fe_last; 
 float eFuzzy[2] = {0,0}; 
 float ecFuzzy[2] = {0,0}; 
@@ -31,7 +32,7 @@ float D_power = 1;
 float eRule[5] = {-68,-57,0,57,68}; //输入误差（fe）的范围，由负到正 
                                             //如归一化偏差法，输入的误差为-0.9 到 0.9，乘以100即为-90到90，再分成7份
 float ecRule[5] = {-25,-15,0,15,25}; //输入误差的变化率（fec）的范围，由负到正
-float Rule_kp[5] = {-12.5,-3.3,0,3.3,12.5};  //  输出的P值的范围  
+float Rule_kp[5] = {-5,-1.3,0,1.3,5};  //  输出的P值的范围  
                                                    //  
 float Rule_kd[5] = {0,0,0,0,0};  //输出的D值的范围
 /*
@@ -121,9 +122,7 @@ int rule_kd[6][6]=  //p值规则表
       {4,3,0,3,4,5},//4
       {5,5,5,5,5,5} //
 };
-
-
-extern float ADC_Normal[4];
+extern float ADC_Normal[5];
 
 /*******************************************************************************
  *  @brief      fuzzy_mem_cal函数
@@ -254,12 +253,12 @@ void fuzzy_query(void)//查询模糊规则表
 void fuzzy_solve(void)//解模糊得到pd值
 {
     steer_P = 0; //清空P和D值以便累加
-    steer_D = 0;
+    //steer_D = 0;
     /*面积中心法解模糊*/
     for(l = 0;l < rank; l++)
     {
       steer_P += Fuzzy_kp[l] * Rule_kp[l];
-      steer_D += Fuzzy_kd[l] * Rule_kd[l];   
+      //steer_D += Fuzzy_kd[l] * Rule_kd[l];   
     }
 }
 
@@ -272,8 +271,8 @@ void fuzzy_solve(void)//解模糊得到pd值
 void steercontrol(void) 
 {
     if(steer_P < 0)  steer_P = -steer_P; //将输出的 P 值变为正数，乘上输入的误差恰好为舵机转角的增量
-    if(steer_D < 0)  steer_D = -steer_D; //将输出的 D 值变为正数
-    steerctrl_error = (int)( steer_P * fe + 70 * (fe - fe_last) );//舵机转角增量
+   // if(steer_D < 0)  steer_D = -steer_D; //将输出的 D 值变为正数
+    steerctrl_error = (int)( steer_P * fe + steer_D * (fe - fe_last) );//舵机转角增量
     last_steerctrl = steerctrl;
   //  steerctrl_error = (int)(10 * ( 0.2 * fe ));
     steerctrl = Midsteering + ( steerctrl_error / 10 ); //舵机转角PWM

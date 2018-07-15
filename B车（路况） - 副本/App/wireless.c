@@ -2,8 +2,8 @@
 #include    "AllFunction.h"
 
 /**************************  定义变量  **************************************/
-extern uint16 ADC_Value[4];
-extern float ADC_Normal[4]; 
+extern uint16 ADC_Value[5];
+extern float ADC_Normal[5]; 
 //蓝牙模块发送的数据数组
 int16 OutData[4]={0,0,0,0};
 int16 send_b=10000;//10000对应万位，以此类推

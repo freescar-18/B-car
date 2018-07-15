@@ -17,11 +17,11 @@ int16 count_test = 0,flag_test = 0,error_test = 0,error_test2 = 0;
 int16 var_test2 = 0,var_test3 = 0,var_test5 = 0,var_test6 = 0,lptmr_test = 0;
 double error_sqrt_test = 0,var_sqrt_test3 = 0,var_sqrt_test5 = 0,error_test3 = 0;
 // test_motor函数的定义    
-extern uint16 ADC_GetMessage[4][SamplingNum];
-extern uint16 ADC_Value[4];
-extern uint16 SUM_ADC_GetMessage[4];
-extern uint16 ADC_Maxing[4];
-extern float ADC_Normal[4];
+extern uint16 ADC_GetMessage[5][SamplingNum];
+extern uint16 ADC_Value[5];
+extern uint16 SUM_ADC_GetMessage[5];
+extern uint16 ADC_Maxing[5];
+extern float ADC_Normal[5];
 extern float fe,fec;
 extern float speed_fec,speed_fe;
 extern float steer_P;
@@ -43,7 +43,7 @@ int8 u = 0;
 
 //test_steering函数的定义
 uint16 steering_test = 1550;  //测试时所用的舵机PWM
-uint32 ADC_max_test[4] = {0,0,0,0};//测试最大电感值所用
+uint32 ADC_max_test[5] = {0,0,0,0,0};//测试最大电感值所用
 uint8 w;
 
 extern float speed_power;
@@ -58,6 +58,7 @@ extern float D_power;
 extern uint8 speed_error_power;
 extern uint16 delay_flag;
 int16 first_steerctrl;
+uint16 max_PWM = 5850;
 
 
 /*******************************************************************************
@@ -196,7 +197,7 @@ void test_motor(void)
             else  //左轮速度没溢出
             {   
                 if(speedctrl_left < 200) speedctrl_left = 200;
-                if(speedctrl_left > 5850) speedctrl_left = 5850;
+                if(speedctrl_left > max_PWM) speedctrl_left = max_PWM;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
             }
@@ -212,7 +213,7 @@ void test_motor(void)
             else  //右轮速度没溢出
             {
                 if(speedctrl_right < 200) speedctrl_right = 200;
-                if(speedctrl_right > 5850) speedctrl_right = 5850;
+                if(speedctrl_right > max_PWM) speedctrl_right = max_PWM;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
             }
@@ -288,8 +289,9 @@ void test_max_ADC(void)
     ADC_GetMessage[1][1] = adc_once(ADC1_SE13, ADC_12bit); //blue
     ADC_GetMessage[2][1] = adc_once(ADC1_SE14, ADC_12bit); //brown
     ADC_GetMessage[3][1] = adc_once(ADC1_SE15, ADC_12bit);  //orange
+    ADC_GetMessage[4][1] = adc_once(ADC1_SE12, ADC_12bit);  //new
     
-    for(w = 0;w < 4; w++)
+    for(w = 0;w < 5; w++)
     {
         if( ADC_GetMessage[w][1] >= ADC_max_test[w])
             ADC_max_test[w] = ADC_GetMessage[w][1];
@@ -299,6 +301,7 @@ void test_max_ADC(void)
     LED_PrintShort(0,1,ADC_max_test[1]);  //显示蓝色电感值
     LED_PrintShort(0,2,ADC_max_test[2]);  //显示褐色电感值
     LED_PrintShort(0,3,ADC_max_test[3]);  //显示橙色电感值
+    LED_PrintShort(0,4,ADC_max_test[4]);  //显示电感值
             
 }
 
@@ -320,6 +323,8 @@ void test_max_ADC_flash_write(void)
     flash_write(SECTOR_NUM, 8, ADC_max_test[2] ) ;  //写入数据到扇区，偏移地址为8，必须一次写入4字节
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 12, ADC_max_test[3] ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 16, ADC_max_test[4] ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
 }
 

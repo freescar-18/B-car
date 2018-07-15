@@ -15,11 +15,12 @@
 extern uint16 steering_test,motorctrl_test; //test文件
 extern uint16 flag;  //test文件
 extern uint16 jishu;  //GetMessage文件
-extern uint16 ADC_Maxing[4]; //用于读取flash中存储的最大电感值
+extern uint16 ADC_Maxing[5]; //用于读取flash中存储的最大电感值
 extern uint8 adc_test; //跳出最大电感值采集的标志位
 extern float Rule_kd[5];
 extern float Rule_kp[5];
 extern float speed_Rule[5];
+extern float speed_error_Rule[5];
 extern uint8 huandao_flag_a,huandao_flag_b,huandao_flag_c,huandao_flag_d,huandao_flag_e,huandao_flag_f;
 extern uint32 timevar = 0;
 extern uint8 chaoshengbotime = 0;
@@ -40,6 +41,19 @@ extern uint16 delay_flag;
 extern uint16 dis_back;
 extern uint8 shizi_flag;
 extern float DDD;
+extern uint8 wait_flag;
+extern uint8 shizi;
+extern uint8 left_flag;
+extern uint8 right_flag;
+uint8 turn_left_flag = 1;
+uint8 turn_right_flag = 1;
+extern uint8 switch_mode;
+extern uint8 avoid_flag_shizi;
+extern uint8 last_flag_shizi;
+extern float steer_D;
+extern float last_speed_power;
+extern uint8 go_flag_shizi;
+extern uint16 max_PWM;
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -56,24 +70,61 @@ void PORTA_IRQHandler(void)
         PORTA_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-        if(adc_test  == 0)
+        if(switch_mode == 100)//初始状态
         {
-            ADC_Maxing[0] = flash_read(SECTOR_NUM, 0, uint16);  //读取16位
-            ADC_Maxing[1] = flash_read(SECTOR_NUM, 4, uint16);  //读取16位
-            ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //读取16位
-            ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //读取16位 2字节
+            if(adc_test  == 0)
+            {
+                ADC_Maxing[0] = flash_read(SECTOR_NUM, 0, uint16);  //读取16位
+                ADC_Maxing[1] = flash_read(SECTOR_NUM, 4, uint16);  //读取16位
+                ADC_Maxing[2] = flash_read(SECTOR_NUM, 8, uint16);  //读取16位
+                ADC_Maxing[3] = flash_read(SECTOR_NUM, 12, uint16);  //读取16位 2字节
+                ADC_Maxing[4] = flash_read(SECTOR_NUM, 16, uint16);  //读取16位 2字节
+            }
+            adc_test = 1;
+            ones = 1;
+/**/        start_flag = 0;
         }
-        adc_test = 1;
-        ones = 1;
-        if(tab == 0) tab = 1;//切换键
-        else tab = 0;
-/**/    start_flag = 0;/*
-        speed_Rule[4] = 35;
-        speed_Rule[3] = 35;
-        speed_Rule[2] = 35;
-        speed_Rule[1] = 35;
-        speed_Rule[0] = 35;*/
-       //p DELAY_MS(300); 
+        else if(switch_mode == 0)//显示屏0
+        {
+        
+        }
+        else if(switch_mode == 1)//显示屏1
+        {
+            
+        }
+        else if(switch_mode == 2)//显示屏2
+        {
+            avoid_flag_shizi--;
+        }
+        else if(switch_mode == 3)//显示屏3
+        {
+            last_flag_shizi--;
+        }
+        else if(switch_mode == 4)//显示屏4
+        {
+            speed_Rule[0]--;
+            speed_Rule[1]--;
+            speed_Rule[2]--;
+            speed_Rule[3]--;
+            speed_Rule[4]--;
+        }
+        else if(switch_mode == 5)//显示屏5
+        {
+           max_PWM -= 50;
+        }
+        else if(switch_mode == 6)//显示屏6
+        {
+            Rule_kp[0] = Rule_kp[0] + 0.3;
+            Rule_kp[1] = Rule_kp[1] + 0.3;
+            Rule_kp[3] = Rule_kp[3] - 0.3;
+            Rule_kp[4] = Rule_kp[4] - 0.3;
+        } 
+        else if(switch_mode == 7)//显示屏7
+        {
+            read_flash();
+        }
+        DELAY_MS(300);
+         
         /*  以上为用户任务  */
     }
     
@@ -84,34 +135,54 @@ void PORTA_IRQHandler(void)
         PORTA_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-       //motorctrl_test = motorctrl_test + 50;
-       // steering_test = steering_test + 2;
-        if(ones == 0)
+        if(switch_mode == 100)//初始状态
         {
-            flash_init();  //初始化flash
-            test_max_ADC_flash_write();
+            if(ones == 0)//写入数据
+            {
+                flash_init();  //初始化flash
+                test_max_ADC_flash_write();
+            }
+            ones = 1;  // 只会写一次！！
         }
-        ones = 1;  // 只会写一次！！
-       /* 
-        if(tab == 0)
+        else if(switch_mode == 0)//显示屏0
         {
-        Rule_kp[0] = Rule_kp[0] - 0.1;
-        Rule_kp[1] = Rule_kp[1] - 0.1;
+            turn_left_flag = 0;
+            //left_flag = 0;
+            level = 51;
+            flag = 0;
         }
-        if(tab == 1)
+        else if(switch_mode == 1)//显示屏1
         {
-        Rule_kd[0] = Rule_kd[0] - 0.01 *10;
-        Rule_kd[1] = Rule_kd[1] - 0.01 *10;
-        }*/
-        DDD = DDD + 0.03;/*
-        speed_Rule[4] = 40;
-        speed_Rule[3] = 40;
-        speed_Rule[2] = 40;
-        speed_Rule[1] = 40;
-        speed_Rule[0] = 40;*/
-       //  DELAY_MS(300); 
+            
+        }
+        else if(switch_mode == 2)//显示屏2
+        {
+           go_flag_shizi++;
+        }
+        else if(switch_mode == 3)//显示屏3
+        {
+           last_speed_power += 0.1;
+        }
+        else if(switch_mode == 4)//显示屏4
+        {
+           speed_error_Rule[0] += 2;
+           speed_error_Rule[1]++;
+           speed_error_Rule[2]++;
+        }
+        else if(switch_mode == 5)//显示屏5
+        {
+           
+        }
+        else if(switch_mode == 6)//显示屏6
+        {
+           steer_D += 3;
+        } 
+        else if(switch_mode == 7)//显示屏7
+        {
+           write_flash();
+        }
+        DELAY_MS(300); 
      }
-    //  shizi_flag--;
         
         /*  以上为用户任务  */
     
@@ -126,23 +197,51 @@ void PORTB_IRQHandler(void)
         PORTB_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-         /*flag = 0; //清空停车位
-         ones = 1;
-         jishu = 0;
-         times = 0;//清空定时停车时间计时
-         huandao_flag_a = 0; huandao_flag_b = 0;//huandao_flag_c = 0; 
-         huandao_flag_d = 0; huandao_flag_e = 0; //huandao_flag_f = 0;
-         last_stop = 0;  //清空停车，即重启
-         level = 1; //清空等级
-         start_flag = 0; //清空发车
-         dis_right = 0; //清空车移动的距离*/
-        flag = 0;/*
-        speed_Rule[4] = 45;
-        speed_Rule[3] = 45;
-        speed_Rule[2] = 45;
-        speed_Rule[1] = 45;
-        speed_Rule[0] = 45;*/
-         //DELAY_MS(300);
+        if(switch_mode == 100)//初始状态
+        {
+          
+        }
+        else if(switch_mode == 0)//显示屏0
+        {
+            level = 52;
+            flag = 0;
+        }
+        else if(switch_mode == 1)//显示屏1
+        {
+            
+        }
+        else if(switch_mode == 2)//显示屏2
+        {
+            avoid_flag_shizi++;
+        }
+        else if(switch_mode == 3)//显示屏3
+        {
+            last_flag_shizi++;
+        }
+        else if(switch_mode == 4)//显示屏4
+        {
+            speed_Rule[0]++;
+            speed_Rule[1]++;
+            speed_Rule[2]++;
+            speed_Rule[3]++;
+            speed_Rule[4]++;
+        }
+        else if(switch_mode == 5)//显示屏5
+        {
+            max_PWM += 50;
+        }
+        else if(switch_mode == 6)//显示屏6
+        {
+            Rule_kp[0] = Rule_kp[0] - 0.3;
+            Rule_kp[1] = Rule_kp[1] - 0.3;
+            Rule_kp[3] = Rule_kp[3] + 0.3;
+            Rule_kp[4] = Rule_kp[4] + 0.3;
+        } 
+        else if(switch_mode == 7)//显示屏7
+        {
+           
+        }
+         DELAY_MS(300);
         /*  以上为用户任务  */
     }
     /////////////  PTB3 RIGHT 按键   ///////////////////////////////////////////
@@ -152,32 +251,50 @@ void PORTB_IRQHandler(void)
         PORTB_ISFR  = (1 << n);        //写1清中断标志位
 
         /*  以下为用户任务  */
-
-      //  motorctrl_test = motorctrl_test - 50;
-      //  steering_test = steering_test - 2;
-        /*
-        if(tab == 0)
+        if(switch_mode == 100)//初始状态
         {
-          Rule_kp[4] = Rule_kp[4] + 0.1;
-          Rule_kp[3] = Rule_kp[3] + 0.1; 
+          
         }
-        if(tab == 1)
+        else if(switch_mode == 0)//显示屏0
         {
-          Rule_kd[4] = Rule_kd[4] + 0.01 * 10;
-          Rule_kd[3] = Rule_kd[3] + 0.01 * 10; 
-        } 
-        */
-        //shizi_flag--;
-        DDD = DDD - 0.03;
-          /*        speed_Rule[4] = 42;
-        speed_Rule[3] = 42;
-        speed_Rule[2] = 42;
-        speed_Rule[1] = 42;
-        speed_Rule[0] = 42;*/
-         DELAY_MS(300);
+            turn_right_flag = 0;
+            level = 51;
+            flag = 0;
+        }
+        else if(switch_mode == 1)//显示屏1
+        {
+            
+        }
+        else if(switch_mode == 2)//显示屏2
+        {
+           go_flag_shizi--;
+        }
+        else if(switch_mode == 3)//显示屏3
+        {
+           last_speed_power -= 0.1;
+        }
+        else if(switch_mode == 4)//显示屏4
+        {
+           speed_error_Rule[0] -= 2;
+           speed_error_Rule[1]--;
+           speed_error_Rule[2]--;
+        }
+        else if(switch_mode == 5)//显示屏5
+        {
+           
+        }
+        else if(switch_mode == 6)//显示屏6
+        {
+           steer_D -= 3;
+        }  
+        else if(switch_mode == 7)//显示屏7
+        {
+           
+        }
+        DELAY_MS(300);
         /*  以上为用户任务  */
     }
-             
+              
 }
 
 void PORTE_IRQHandler(void)
