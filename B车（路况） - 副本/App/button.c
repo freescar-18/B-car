@@ -43,10 +43,6 @@ extern uint8 shizi_flag;
 extern float DDD;
 extern uint8 wait_flag;
 extern uint8 shizi;
-extern uint8 left_flag;
-extern uint8 right_flag;
-uint8 turn_left_flag = 1;
-uint8 turn_right_flag = 1;
 extern uint8 switch_mode;
 extern uint8 avoid_flag_shizi;
 extern uint8 last_flag_shizi;
@@ -54,6 +50,8 @@ extern float steer_D;
 extern float last_speed_power;
 extern uint8 go_flag_shizi;
 extern uint16 max_PWM;
+extern uint16 turn_car_dis;
+extern uint16 last_start_flag;
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -82,15 +80,18 @@ void PORTA_IRQHandler(void)
             }
             adc_test = 1;
             ones = 1;
-/**/        start_flag = 0;
+/**/       // start_flag = 250;
         }
         else if(switch_mode == 0)//显示屏0
         {
-        
+              flag = 0;
+              wait_flag = 0;
+              start_flag = last_start_flag;
+              level = 100;
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+            turn_car_dis -= 100;
         }
         else if(switch_mode == 2)//显示屏2
         {
@@ -115,8 +116,8 @@ void PORTA_IRQHandler(void)
         else if(switch_mode == 6)//显示屏6
         {
             Rule_kp[0] = Rule_kp[0] + 0.3;
-            Rule_kp[1] = Rule_kp[1] + 0.3;
-            Rule_kp[3] = Rule_kp[3] - 0.3;
+            Rule_kp[1] = Rule_kp[1] + 0.1;
+            Rule_kp[3] = Rule_kp[3] - 0.1;
             Rule_kp[4] = Rule_kp[4] - 0.3;
         } 
         else if(switch_mode == 7)//显示屏7
@@ -146,14 +147,11 @@ void PORTA_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-            turn_left_flag = 0;
-            //left_flag = 0;
-            level = 51;
-            flag = 0;
+            
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+           last_start_flag += 100;
         }
         else if(switch_mode == 2)//显示屏2
         {
@@ -203,12 +201,11 @@ void PORTB_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-            level = 52;
-            flag = 0;
+            
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+            turn_car_dis += 100;
         }
         else if(switch_mode == 2)//显示屏2
         {
@@ -257,13 +254,11 @@ void PORTB_IRQHandler(void)
         }
         else if(switch_mode == 0)//显示屏0
         {
-            turn_right_flag = 0;
-            level = 51;
-            flag = 0;
+            
         }
         else if(switch_mode == 1)//显示屏1
         {
-            
+            last_start_flag -= 100;
         }
         else if(switch_mode == 2)//显示屏2
         {

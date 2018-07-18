@@ -27,8 +27,8 @@ void System_Initialization(void); //总初始化
 #define  PIT2_TIMER  (1000)  //定时器 2 所用的时间
 #define  PIT3_TIMER  (4000)  //定时器 3 所用的时间 
 
-#define Midsteering 670   // 768  1380
-#define Minsteering 602  //right  680   1540 
+#define Midsteering 672   // 768  1380
+#define Minsteering 596  //right  680   1540 
 #define Maxsteering 748 //left 左转  855   1715
 
 #define  S3010_FTM   FTM1

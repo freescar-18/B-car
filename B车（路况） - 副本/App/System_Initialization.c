@@ -13,7 +13,7 @@
 
 
 /**************************  全局变量   ***************************************/
-
+extern struct _MAG mag_read;
     
 /*!
  *  @brief     ADC模块初始化 
@@ -114,6 +114,10 @@ void GPIO_Initialization(void)
     set_vector_handler(PORTC_VECTORn ,PORTC_IRQHandler); //设置PORTC的中断服务函数为 PORTC_IRQHandler
     //蜂鸣器初始化
     gpio_init (PTE1, GPO, 0); //初始化 PTC8管脚，输出，初始低电平
+    
+    MAG3110_Init();
+    mag_read.mag_x_offset = -885;
+    mag_read.mag_y_offset = 680;
     
 }
 

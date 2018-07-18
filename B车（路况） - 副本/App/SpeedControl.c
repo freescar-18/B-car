@@ -36,8 +36,8 @@ float speed_ecRule[5] = {0,10,20,30,40}; //输入误差的变化率（speed_fec）的范围
 //float speed_Rule[5] = {18,19,20,21,22}; //输出预测速度（speed_forecast）的范围 
 //float speed_error_Rule[5] = {7,6,5,4,0};  //预测速度偏差的范围
                                           //
-float speed_Rule[5] = {47,46,45,44,43}; //输出预测速度（speed_forecast）的范围 
-float speed_error_Rule[5] = {28,20,10,3,0};  //预测速度偏差的范围
+float speed_Rule[5] = {38,39,40,41,42}; //输出预测速度（speed_forecast）的范围 
+float speed_error_Rule[5] = {32,23,12,3,0};  //预测速度偏差的范围
 int speed_rule[6][6] =   //速度规则表
 {
   //ec 0 1 2 3 4  //e
@@ -226,7 +226,7 @@ void speed_fuzzy_solve_forecast(void)//解模糊得到pd值
    // if( speed_forecast > 55) speed_forecast = 55;
    // if( speed_forecast_error > 30) speed_forecast_error = 30;
     speed_forecast = speed_power * speed_forecast;
-    speed_forecast_error = speed_error_power * speed_forecast_error;
+    speed_forecast_error = speed_power * speed_forecast_error;
 }
 
 /*******************************************************************************

@@ -69,6 +69,8 @@ extern float last_speed_power;
 extern uint16 max_PWM;
 uint8 write_flash_flag = 0;
 uint8 read_flash_flag = 0;
+uint16 turn_car_dis = 800;
+uint16 last_start_flag = 700;
 /*******************************************************************************
  *  @brief      beep_on函数
  *  @note       蜂鸣器一直响
@@ -133,12 +135,15 @@ void oled_view(void)
          {
             LED_Fill(0x00);
          }
-         LED_P6x8Str(40,0,"the max ADC");
-         LED_PrintShort(4,2,ADC_Maxing[0]); 
-         LED_PrintShort(4,3,ADC_Maxing[1]); 
-         LED_PrintShort(4,4,ADC_Maxing[2]); 
-         LED_PrintShort(4,5,ADC_Maxing[3]); 
-         LED_PrintShort(4,6,ADC_Maxing[4]); 
+         LED_P6x8Str(4,0,"stop message");  
+         
+         LED_P6x8Str(4,2,"how many dis:");
+         LED_P6x8Str(4,3,"turn_car_dis=");
+         LED_PrintShort(4,4,turn_car_dis);  
+         LED_P6x8Str(80,4,"(up-d)");
+         LED_P6x8Str(4,6,"last_start_flag=");
+         LED_PrintShort(4,7,last_start_flag);  
+         LED_P6x8Str(80,7,"(left-r)");
          switch_mode = 1;
      }
      /********* 拨码器 1100 *********/
@@ -152,7 +157,7 @@ void oled_view(void)
          LED_P6x8Str(4,0,"meeting message");  
          LED_P6x8Str(4,1,"meeting"); 
          LED_P6x8Str(4,2,"which shizi meeting:");
-         LED_P6x8Str(4,3,"avoid_flag_shizi=");
+         LED_P6x8Str(4,3,"avoid_flag_shizi="); 
          LED_PrintShort(4,4,avoid_flag_shizi);  
          LED_P6x8Str(80,4,"(up-d)");
          LED_P6x8Str(4,6,"go_flag_shizi=");
@@ -213,8 +218,14 @@ void oled_view(void)
             LED_Fill(0x00);
          }
          LED_P6x8Str(20,0,"max_PWM");    
-         LED_PrintShort(5,2,max_PWM);
-         LED_P6x8Str(80,2,"(up-d)");          
+         LED_PrintShort(5,1,max_PWM);
+         LED_P6x8Str(80,1,"(up-d)");     
+         LED_P6x8Str(40,2,"the max ADC");
+         LED_PrintShort(4,3,ADC_Maxing[0]); 
+         LED_PrintShort(4,4,ADC_Maxing[1]); 
+         LED_PrintShort(4,5,ADC_Maxing[2]); 
+         LED_PrintShort(4,6,ADC_Maxing[3]); 
+         LED_PrintShort(4,7,ADC_Maxing[4]); 
          switch_mode = 5;
      }
      /********* 拨码器 0011 *********/
@@ -291,6 +302,10 @@ void write_flash(void)
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 36, max_PWM ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
+    flash_write(SECTOR_NUM, 40, turn_car_dis ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+    flash_write(SECTOR_NUM, 44, last_start_flag ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
     
     write_flash_flag = 1;
 }
@@ -312,6 +327,8 @@ void read_flash(void)
     last_flag_shizi  = flash_read(SECTOR_NUM, 28, uint16); 
     last_speed_power = ((float)(flash_read(SECTOR_NUM, 32, uint16))) / 10; 
     max_PWM          = flash_read(SECTOR_NUM, 36, uint16); 
+    turn_car_dis     = flash_read(SECTOR_NUM, 40, uint16); 
+    last_start_flag  = flash_read(SECTOR_NUM, 44, uint16); 
     read_flash_flag  = 1;
 }
 

@@ -167,13 +167,13 @@ void stop_car(void)
                 if(speedctrl_left < -9500) speedctrl_left_opp = 9500;
                 else speedctrl_left_opp = -speedctrl_left;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,speedctrl_left_opp); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,9000); //输出电机PWM  
             }
             else  //左轮速度没溢出  
             {
                 if(speedctrl_left > 100) speedctrl_left = 100;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
+                ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,9000); //输出电机PWM 
             }
             ////////////////////////////////////////////////////////////////////////
             /////////////////////////////右轮速度////////////////////////////////////
@@ -182,13 +182,13 @@ void stop_car(void)
                 if(speedctrl_right < -9500) speedctrl_right_opp = 9500;
                 else speedctrl_right_opp = -speedctrl_right;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,speedctrl_right_opp); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,9000); //输出电机PWM  
             }
             else  //右轮速度没溢出
             {
                 if(speedctrl_right > 100) speedctrl_right = 100;
-                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
-                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
+                ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,0); //输出电机PWM  
+                ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,9000); //输出电机PWM 
             }
             ////////////////////////////////////////////////////////////////////////
             ////////////////////////////停车///////////////////////////////////////

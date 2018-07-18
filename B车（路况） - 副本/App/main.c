@@ -20,7 +20,15 @@ extern uint8 chaoshengbotime;
 extern uint8 flag_csb;
 extern uint32 timevar;
 extern byte bmp[];
-
+uint16 clj = 0;
+extern struct _MAG mag_read;
+extern uint16 last_stop;//终点停车标记 大于1为停车
+extern uint8 level;
+extern uint16 dis_right,dis_left;
+extern uint16 dis_back;
+extern uint8 wait_flag;
+extern uint16 start_flag;
+extern uint16 turn_car_dis;
 /*!
  *  @brief      main函数
  *  @since      
@@ -56,13 +64,13 @@ void main()
     
     
    // 设置中断优先级  越小越优先 15个级别
-    set_irq_priority(PIT0_IRQn,0);
-    set_irq_priority(PIT2_IRQn,1);
-    set_irq_priority(PIT1_IRQn,3);
-    set_irq_priority(PORTC_IRQn,4);
-    set_irq_priority(PORTB_IRQn,5);
-    set_irq_priority(PORTA_IRQn,6);
-    set_irq_priority(PORTE_IRQn,7);
+    set_irq_priority(PIT0_IRQn,6);
+    set_irq_priority(PIT2_IRQn,5);
+    set_irq_priority(PIT1_IRQn,4);
+    set_irq_priority(PORTC_IRQn,0);
+    set_irq_priority(PORTB_IRQn,1);
+    set_irq_priority(PORTA_IRQn,2);
+    set_irq_priority(PORTE_IRQn,3);
     DisableInterrupts;
     DELAY_MS(10);
     EnableInterrupts; //同时启动中断   
@@ -87,7 +95,25 @@ void main()
       //  test_steering();
     // test_ADC();
      // test_max_ADC();
-       OutPut_Data_test();//示波器调试  
+      // OutPut_Data_test();//示波器调试  
+        
+        OutPut_Data_test();//示波器调试  
+        MAG3110_Read(&mag_read);
+       // LED_PrintShort(45,2,mag_read.mag_x);
+       // LED_PrintShort(45,4,mag_read.mag_y); 
+       if( (mag_read.mag_y < -3000 || (mag_read.mag_y > 500) ) && (start_flag == 0) && (level != 40) && (level!= 100))
+       {
+          clj = 1000;
+          level = 40;
+          dis_back = turn_car_dis;
+          dis_right = 0;
+          last_stop = 0;
+          wait_flag = 0;
+       }
+       else
+       {
+          clj = 0;
+       }
      //  gpio_turn(PTD15);  
  //    OutPut_Data_test_sscom();//串口助手调试  
       //MessageProcessing(); 

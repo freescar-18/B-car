@@ -58,7 +58,7 @@ extern float D_power;
 extern uint8 speed_error_power;
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 5850;
+uint16 max_PWM = 5100;
 
 
 /*******************************************************************************
@@ -196,7 +196,7 @@ void test_motor(void)
             }
             else  //左轮速度没溢出
             {   
-                if(speedctrl_left < 200) speedctrl_left = 200;
+                if(speedctrl_left < 800) speedctrl_left = 800;
                 if(speedctrl_left > max_PWM) speedctrl_left = max_PWM;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
@@ -212,7 +212,7 @@ void test_motor(void)
             }
             else  //右轮速度没溢出
             {
-                if(speedctrl_right < 200) speedctrl_right = 200;
+                if(speedctrl_right < 800) speedctrl_right = 800;
                 if(speedctrl_right > max_PWM) speedctrl_right = max_PWM;
                 ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
@@ -302,6 +302,7 @@ void test_max_ADC(void)
     LED_PrintShort(0,2,ADC_max_test[2]);  //显示褐色电感值
     LED_PrintShort(0,3,ADC_max_test[3]);  //显示橙色电感值
     LED_PrintShort(0,4,ADC_max_test[4]);  //显示电感值
+    LED_P6x8Str(50,6,"B car");
             
 }
 
