@@ -5,7 +5,7 @@
 extern uint16 ADC_Value[5];
 extern float ADC_Normal[5]; 
 //蓝牙模块发送的数据数组
-int16 OutData[4]={0,0,0,0};
+int16 OutData[10]={0};
 int16 send_b=10000;//10000对应万位，以此类推
 /************以下是FreeCars2.0协议变量**************/
 extern uint8 uSendBuf[UartDataNum*2]={0};                //****UartDataNum是上位机设置通道数目，需保持一致
@@ -36,6 +36,8 @@ extern float speed_fe;
 */
 extern uint16 clj;
 
+extern uint16 round_left,round_right,cross_up,crossroad,crossroads,round_is,round_in,round_over,round_out,round_stop_flag;
+extern uint8 none_steerctrl;
 /*******************************************************************************
  *  @brief      CRC_CHECK函数
  *  @note       直接放入main中while（1)里执行               
@@ -113,8 +115,10 @@ unsigned short CRC_CHECK(unsigned char *databuf,unsigned char CRC_CNT)
     //var_test4 = adc_once(ADC1_SE13, ADC_12bit);
   OutData[2] = (int)(50);//adc_once(ADC1_SE14, ADC_12bit);
   OutData[3] = (int)(clj);//adc_once(ADC1_SE15, ADC_12bit);
-  OutPut_Data();
+  //OutPut_Data();
   //printf("ADC_FroBack_6[1]=%d\n",OutData[0]);
+
+  OutPut_Data();
  }
 
 /*******************************************************************************
@@ -234,17 +238,46 @@ void Freecars_scope(void)
   int i;
    //100ms发送一次数据（所有通道）到示波器，也可以使用delayms(100)的方式
      // DELAY_MS(5);
-       OutData[0] = adc_once(ADC1_SE10, ADC_12bit);//ADC_Value[0];//(int)speed_forecast_left;//ADC_Value[0];//adc_once(ADC1_SE10, ADC_12bit);
-       OutData[1] = adc_once(ADC1_SE13, ADC_12bit);//ADC_Value[1];//speedctrl_left;//ADC_Value[1];//;
-       OutData[2] = adc_once(ADC1_SE15, ADC_12bit);//ADC_Value[2];//speed_now_left;//ADC_Value[2];//;
-       OutData[3] = adc_once(ADC1_SE14, ADC_12bit);//ADC_Value[3];
+       OutData[0] = (int)(100 * ADC_Normal[0]);//ADC_Value[0];//(int)speed_forecast_left;//ADC_Value[0];//adc_once(ADC1_SE10, ADC_12bit);
+       OutData[1] = (int)(100 * ADC_Normal[1]);//ADC_Value[1];//speedctrl_left;//ADC_Value[1];//;
+       OutData[2] = (int)(100 * ADC_Normal[2]);//ADC_Value[2];//speed_now_left;//ADC_Value[2];//;
+       OutData[3] = (int)(100 * ADC_Normal[3]);//ADC_Value[3];
+       OutData[4] = (int)(100 * ADC_Normal[4]);
+        if(round_is!=0)
+        {
+          OutData[5] = 600;
+         // round_is=!round_is;
+        }
+  
+        if(round_in==1)
+        {
+          OutData[6] = 500;
+          //round_right=!round_right;
+        }
+        if(round_out==1)
+        {
+          OutData[7] = 400;
+        //  crossroad=!crossroad;
+        }
+        if(round_stop_flag==1)
+        {
+          OutData[8] = 300;
+        }
+        if( crossroad==1)
+        {
+          OutData[9] = 650;
+        }
        for(i=1;i<UartDataNum;i++)
        {
          push(i,OutData[i-1]);
        
        }
        sendDataToScope();		     //把缓冲区里的数据发送到示波器
-      push(0,10);         //获取发送一次数据的时间,放到示波器0通道缓冲区，单位为：100us（如：10表示1ms）.
+       push(0,10);         //获取发送一次数据的时间,放到示波器0通道缓冲区，单位为：100us（如：10表示1ms）.
    // }
-
+      OutData[5] =0;
+      OutData[6] =0;
+      OutData[7] =0;
+      OutData[8] =0;
+      OutData[9] =0;
 }

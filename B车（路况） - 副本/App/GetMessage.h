@@ -16,6 +16,8 @@ void ADCerror_diff(void);
 void ADCnormal(void);
 void Road_Id_Get(void);
 void road_check(void);
+void Road_Message(void);
+void Round_about(void); 
 
 /****************************  宏定义  ****************************************/
 #define SamplingNum     (18)  //电感扫描的次数

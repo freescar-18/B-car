@@ -176,7 +176,7 @@ void ISR_Initialization(void)
    // beep_on();  //初始化成功响一下
    // DELAY();
    // beep_off();
-    DELAY_MS(100);
+    DELAY_MS(500);
    // EnableInterrupts; //同时启动中断
     
 }
