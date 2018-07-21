@@ -58,7 +58,7 @@ extern float D_power;
 extern uint8 speed_error_power;
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 4600;
+uint16 max_PWM = 4400;
 uint16 i_die = 0;
 extern uint8 level;
 
@@ -201,7 +201,7 @@ void test_motor(void)
     }
     else  //左轮速度没溢出
     {   
-      if(speedctrl_left < 200) speedctrl_left = 200;
+      if(speedctrl_left < 1100) speedctrl_left = 1100;
       if(speedctrl_left > max_PWM) speedctrl_left = max_PWM;
       ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,speedctrl_left); //输出电机PWM  
       ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM 
@@ -218,7 +218,7 @@ void test_motor(void)
     }
     else  //右轮速度没溢出
     {
-      if(speedctrl_right < 200) speedctrl_right = 200;
+      if(speedctrl_right < 1100) speedctrl_right = 1100;
       if(speedctrl_right > max_PWM) speedctrl_right = max_PWM;
       ftm_pwm_duty(MOTOR_FTM, MOTOR1_PWM,speedctrl_right); //输出电机PWM  
       ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM 
@@ -229,7 +229,8 @@ void test_motor(void)
     {               
       if( delay_flag > 0 ) 
       {
-        delay_flag--;           
+        delay_flag--;      
+        ftm_pwm_duty(S3010_FTM, S3010_CH,Maxsteering); 
       }
       else
       {
@@ -247,6 +248,7 @@ void test_motor(void)
         first_steerctrl = steerctrl;
       }
       ftm_pwm_duty(S3010_FTM, S3010_CH,steerctrl);  //输出舵机PWM
+      i_die = 0;
     }
     ////////////////////////////////////////////////////////////////////////
     if( flag == 1 ) // 进入死循环，电机停止转动，此时因为几十毫秒过去了，还是这么小，所以就停车了
@@ -255,9 +257,17 @@ void test_motor(void)
       ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  left-正
       ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
       ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
-      if(ADC_Value[0] > 50 || ADC_Value[1] > 50 || ADC_Value[2] > 50 || ADC_Value[3] > 50)
+      if( ( ADC_Value[0] > 50 || ADC_Value[1] > 50 || ADC_Value[2] > 50 || ADC_Value[3] > 50) && (level != 86) )
       {
         flag = 0;
+      }
+       i_die++;  //   赛车出界后处理
+      if(i_die == 500)//   出界超过5s后的处理
+      {
+        uart_putchar (UART4,'8');
+        uart_putchar (UART4,'8');
+        uart_putchar (UART4,'8');
+        uart_putchar (UART4,'8');
       }
     }
   }  

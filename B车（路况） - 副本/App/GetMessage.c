@@ -14,7 +14,7 @@
 /**************************  全局变量   ***************************************/
 extern float Rule_kd[5];
 extern float Rule_kp[5];
-extern float speed_power,speed_round;
+extern float speed_pp,speed_round,speed_power;
 uint16 ADC_GetMessage[5][SamplingNum]; //采集回来的电感值，一个电感共 SamplingNum 次
 uint16 ADC_Value[5] = {0,0,0,0,0}; //滤波取平均后的电感值
 uint16 SUM_ADC_GetMessage[5] = {0,0,0,0,0}; 
@@ -58,20 +58,21 @@ uint cross_right = 0;
 uint16 round_is=0,round_in=0,round_out=0,round_over=0,round_num=0,round_stop=0,max_PWM_new=0,round_in_count=0,round_stop_flag=1;//round_vaule[3]={0},round_average[2],
 //环岛调整参数
 /////////////////////////////////////////////////////////////////////////////// 
-uint16 round_vaule=0;// round_vaule=0       不入环
+uint16 round_vaule=1;// round_vaule=0       不入环
                        // round_vaule=1       环在左边
                        // round_vaule=2       环在右边
 //识别阈值
-float  round_up_vaule=2.1;
-float round_down_vaule=1.90;
+float  round_up_vaule=2.3;
+float round_down_vaule=2.00;
 //刹车强度
 uint8 round_stop_vaule=35;
+
 //////////////////////////////////////////////////////////////////////////////
 //十字相关变量
 uint16 cross_up=0,crossroad=0,crossroads=0;
 extern uint16 max_PWM;
-
-
+extern uint8 is_shizi;
+extern int16 times;
 /*******************************************************************************
  *  @brief      MessageProcessing函数
  *  @note       ADC信息采集处理，无归一化 
@@ -484,17 +485,17 @@ void Road_Message()
 {
   //速度调整
  
-  if(ADC_Normal[4]<=1.4)
+  if(ADC_Normal[4]<=1.6)
   {
-    speed_power=1.0;//正常速度
+    speed_pp=1.0;//正常速度
   }
   else 
   {
-    speed_power=0.8;//中间电感>1.2，减速
+    speed_pp=0.8;//中间电感>1.2，减速
   }
    if(round_is!=0)
   {
-    speed_power=0.7;//环岛速度
+    speed_pp=0.7;//环岛速度
   }
   
   //环位置判断      中间电感值>于2.00，说明是环交点处，，，，高进低出，防止电感跃变，产生误判
@@ -505,8 +506,12 @@ void Road_Message()
   if((ADC_Normal[4]>=round_up_vaule)&&(round_is==0))  // round_up_vaule=2.15
   {
     round_is=1;
+    if( level == 88)
+      level = 4;
+    else
+      level = 5;
    // round_stop=10;
-    //speed_power=0.3;
+    //speed_pp=0.3;
   }
   else if((ADC_Normal[4]>=1.8)&&(round_is==0))///刹车入环
   {
@@ -522,7 +527,7 @@ void Road_Message()
       max_PWM_new=max_PWM;
     max_PWM=2500;       //改变max_PWM，防止刹车后瞬间加速度过大
     
-    // speed_power=0.3;
+    // speed_pp=0.3;
   }
   
   if(round_is==1)//在环交点处
@@ -595,7 +600,7 @@ void Road_Message()
   //记录上一次电感值
   
   //调用环岛进出函数
-//  Round_about();
+  Round_about();
 }
 
 /*******************************************************************************
@@ -618,18 +623,35 @@ void Round_about()
     if(round_vaule==2)
     {
       none_steerctrl=1;//关闭模糊pid
-      steerctrl=612;   //大死角
-     // speed_round= -13;//      强制差数
+      steerctrl=608;   //大死角
+      // speed_round= -13;//      强制差数
       
       
-    //  if((fe>20)||(fe< -20))//////取决于偏差变化范围
+      //  if((fe>20)||(fe< -20))//////取决于偏差变化范围
       round_in_count+=1;
-      if(round_in_count==80)
+      if(speed_power<0.5)
+      {
+        
+        if(round_in_count==120)
+        {
+          none_steerctrl=0; //开启模糊pid
+          
+          round_in=1;   //
+          //   speed_pp=0.2;
+          round_is=3;
+          //round_right=0; //
+          speed_round=0; //差速清零
+          round_in_count=0;
+          
+          
+        }
+      }
+      else if(round_in_count==80)
       {
         none_steerctrl=0; //开启模糊pid
         
         round_in=1;   //
-        //   speed_power=0.2;
+        //   speed_pp=0.2;
         round_is=3;
         //round_right=0; //
         speed_round=0; //差速清零
@@ -645,11 +667,27 @@ void Round_about()
     {
       
       none_steerctrl=1;//关闭模糊pid
-      steerctrl=738;//大死角
+      steerctrl=742;//大死角
       //speed_round=-16;//      强制差数
-     // speed_power=0.5;
+     // speed_pp=0.5;
       round_in_count+=1;
-      if(round_in_count==80)
+       if(speed_power<0.5)
+       {
+         if(round_in_count==120)
+         {
+           none_steerctrl=0;
+           round_in=1;
+           
+           
+           // round_left=0;
+           round_is=3;
+           //speed_pp=0.1;
+           speed_round=0;
+           round_in_count=0;
+           
+         }
+       }
+      else if(round_in_count==80)
       {
         none_steerctrl=0;
         round_in=1;
@@ -657,7 +695,7 @@ void Round_about()
       
         // round_left=0;
         round_is=3;
-        //speed_power=0.1;
+        //speed_pp=0.1;
         speed_round=0;
         round_in_count=0;
         
@@ -680,14 +718,22 @@ void Round_about()
     
     if(round_over==1)
     {
-      if(ADC_Normal[4]<=1.0)//清除环标志位
+      if(ADC_Normal[4]<=1.1)//清除环标志位
       {
         round_in=0;
         round_is=0;
         round_over=0;
         round_num+=1;
         round_stop_flag=1;
+        if(level == 4) //误判十字
+            level = 88;
+        else           //误判十字
+            level = 1;
+        times = 200; //误判十字
+        is_shizi = 0; //误判十字
         max_PWM=max_PWM_new;//恢复pwm限制
+        
+        
       }
     }
     
@@ -702,12 +748,12 @@ void Round_about()
         //speed_round= -13;//      强制差数
         
         
-        if(ADC_Normal[4]>=1.1)//////取决于偏差变化范围
+        if(ADC_Normal[4]>=1.2)//////取决于偏差变化范围
         {
           none_steerctrl=0; //开启模糊pid
           
           round_over=1;   //结束标志
-          //speed_power=0.2;
+          //speed_pp=0.2;
           
           //round_right=0; //
           round_out=0;
@@ -724,14 +770,14 @@ void Round_about()
         none_steerctrl=1;//关闭模糊pid
         steerctrl=748;//大死角
        // speed_round=-16;//      强制差数
-       // speed_power=0.1;
+       // speed_pp=0.1;
         
-        if(ADC_Normal[4]>=1.1)
+        if(ADC_Normal[4]>=1.2)
         {
           none_steerctrl=0;
           round_over=1;//结束标志
           
-          //speed_power=0.2;
+          //speed_pp=0.2;
          // round_left=0;
           round_out=0;
           speed_round=0;
