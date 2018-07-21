@@ -31,13 +31,13 @@ float speed_forecast_right = 0;  //右轮预测车速
 
 /*需要调节的参数*/
 float speed_power = 1;
-float speed_eRule[5] = {0,40,50,60,70}; //输入误差（speed_fe）的范围                                  
+float speed_eRule[5] = {0,6,12,18,24}; //输入误差（speed_fe）的范围                                  
 float speed_ecRule[5] = {0,10,20,30,40}; //输入误差的变化率（speed_fec）的范围
 //float speed_Rule[5] = {18,19,20,21,22}; //输出预测速度（speed_forecast）的范围 
 //float speed_error_Rule[5] = {7,6,5,4,0};  //预测速度偏差的范围
                                           //
-float speed_Rule[5] = {38,39,40,41,42}; //输出预测速度（speed_forecast）的范围 
-float speed_error_Rule[5] = {32,23,12,3,0};  //预测速度偏差的范围
+float speed_Rule[5] = {39,40,41,42,42}; //输出预测速度（speed_forecast）的范围 
+float speed_error_Rule[5] = {25,19,12,3,0};  //预测速度偏差的范围
 int speed_rule[6][6] =   //速度规则表
 {
   //ec 0 1 2 3 4  //e
@@ -240,12 +240,12 @@ void speedcontrol_forecast(void)
     if(fe < 0)
         {
             speed_forecast_right = (speed_forecast - speed_forecast_error);
-            speed_forecast_left = speed_forecast + speed_forecast_error / 2;
+            speed_forecast_left = speed_forecast + speed_forecast_error / 2.5;
         }
         else
         {
             speed_forecast_left = (speed_forecast - speed_forecast_error);
-            speed_forecast_right = speed_forecast + speed_forecast_error / 2;
+            speed_forecast_right = speed_forecast + speed_forecast_error / 2.5;
         }
     
     speed_fe_last_left = speed_fe_left;

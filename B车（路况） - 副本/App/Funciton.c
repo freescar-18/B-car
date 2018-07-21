@@ -69,8 +69,10 @@ extern float last_speed_power;
 extern uint16 max_PWM;
 uint8 write_flash_flag = 0;
 uint8 read_flash_flag = 0;
-uint16 turn_car_dis = 800;
-uint16 last_start_flag = 700;
+uint16 turn_car_dis = 2200;
+uint16 last_start_flag = 600;
+extern struct _MAG mag_read;
+extern float eRule[5];
 /*******************************************************************************
  *  @brief      beep_onº¯Êý
  *  @note       ·äÃùÆ÷Ò»Ö±Ïì
@@ -122,6 +124,7 @@ void oled_view(void)
          LED_PrintShort(90,3,ADC_Value[2]); 
          LED_PrintShort(90,4,ADC_Value[3]); 
          LED_PrintShort(90,5,ADC_Value[4]); 
+         LED_PrintShort(40,6,level); 
          LED_PrintValueF(40,4,fe,3);  //ÏÔÊ¾ÊäÈëµÄÎó²î
          LED_PrintShort(90,7,speed_now_right); 
          LED_PrintShort(4,7,speed_now_left); 
@@ -271,6 +274,23 @@ void oled_view(void)
          {
             LED_P6x8Str(20,5,"ok");
          }
+     }
+     /********* ²¦ÂëÆ÷ 1010 *********/
+     /*********   p·¶Î§   *********/
+     else if( gpio_get(PTA28) == 1 && gpio_get(PTA29) == 0 && gpio_get(PTA26) == 1 && gpio_get(PTA27) == 0 )
+     {
+         if( switch_mode != 8)//ÇåÆÁ
+         {
+            LED_Fill(0x00);
+         }
+         LED_P6x8Str(20,0,"eRule"); 
+         LED_PrintValueF(4,2,eRule[0],2);
+         LED_PrintValueF(4,3,eRule[1],2);
+         LED_PrintValueF(4,4,eRule[2],2);
+         LED_PrintValueF(4,5,eRule[3],2);
+         LED_PrintValueF(4,6,eRule[4],2);
+         LED_P6x8Str(10,7,"(up-d)"); 
+         switch_mode = 8;
      }
 }
 /*******************************************************************************

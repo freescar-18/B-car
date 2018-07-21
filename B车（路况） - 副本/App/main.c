@@ -65,7 +65,7 @@ void main()
     
    // 设置中断优先级  越小越优先 15个级别
     set_irq_priority(PIT0_IRQn,6);
-    set_irq_priority(PIT2_IRQn,5);
+    //set_irq_priority(PIT2_IRQn,5);
     set_irq_priority(PIT1_IRQn,4);
     set_irq_priority(PORTC_IRQn,0);
     set_irq_priority(PORTB_IRQn,1);
@@ -97,11 +97,14 @@ void main()
      // test_max_ADC();
       // OutPut_Data_test();//示波器调试  
         
-        OutPut_Data_test();//示波器调试  
-        MAG3110_Read(&mag_read);
+    //    OutPut_Data_test();//示波器调试 
+    //    MAG3110_Read(&mag_read);
+       // mag_read.mag_y = 0;
+       // mag_read.mag_x = 0;
+        
        // LED_PrintShort(45,2,mag_read.mag_x);
        // LED_PrintShort(45,4,mag_read.mag_y); 
-       if( (mag_read.mag_y < -3000 || (mag_read.mag_y > 500) ) && (start_flag == 0) && (level != 40) && (level!= 100))
+   /*    if( (mag_read.mag_y < -2000 || mag_read.mag_y > 3000 ) && (start_flag == 0) && (level != 40) && (level!= 100) && (ones == 2)  &&(level != 88))
        {
           clj = 1000;
           level = 40;
@@ -109,11 +112,13 @@ void main()
           dis_right = 0;
           last_stop = 0;
           wait_flag = 0;
+          xxxxxx = mag_read.mag_x;
+          yyyyyy = mag_read.mag_y;
        }
        else
        {
           clj = 0;
-       }
+       }*/
      //  gpio_turn(PTD15);  
  //    OutPut_Data_test_sscom();//串口助手调试  
       //MessageProcessing(); 

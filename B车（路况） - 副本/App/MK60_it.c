@@ -31,18 +31,19 @@ extern float ADC_Normal[5];
 uint8 shizi = 0;
 extern uint16 dis_back;
 extern float speed_power;
-uint8 avoid_flag_shizi = 2;
+uint8 avoid_flag_shizi = 0;
 uint8 go_flag_shizi = 3;
 uint8 last_flag_shizi = 6;
 extern uint8 left_flag;
 extern uint8 right_flag;
 uint16 gameover = 0;
-float last_speed_power = 0.1;
+float last_speed_power = 1;
 uint8 is_shizi = 0;
 extern uint16 clj;
 extern struct _MAG mag_read;
 extern uint16 turn_car_dis;
 extern uint16 last_start_flag;
+extern int8 ones;
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
  *  @note
@@ -63,25 +64,39 @@ void PIT0_IRQHandler(void)
                 uart_putchar (UART4,'3');
                 uart_putchar (UART4,'3');
                 uart_putchar (UART4,'3');
-                uart_putchar (UART4,'3');
-                speed_power = 1;
+                speed_power = 0.5;
                   
             }
-            if( shizi == go_flag_shizi)
+            if( shizi == go_flag_shizi )
             {    
                 uart_putchar (UART4,'4');
                 uart_putchar (UART4,'4');
                 uart_putchar (UART4,'4');
                 uart_putchar (UART4,'4');
-                uart_putchar (UART4,'4');
-                speed_power = 1;
-            }                
+                if( avoid_flag_shizi == 0)//新策略
+                {
+                    speed_power = 0.1;
+                }
+                else
+                {
+                    speed_power = 1;
+                }
+            }   
+            if(shizi == go_flag_shizi + 1)
+            {
+                if( avoid_flag_shizi == 0)//新策略
+                {
+                    speed_power = 1;
+                    times = 200;//滤去多余十字
+                    is_shizi = 0;
+                }
+            }
             if( shizi == last_flag_shizi)
             {
                 speed_power = last_speed_power; //最后一个十字减速
             }
         }
-        if( ADC_Normal[4] > 1.7)
+        if( ADC_Normal[4] > 2)
         {
             is_shizi = 0;
         }
@@ -94,7 +109,7 @@ void PIT0_IRQHandler(void)
     {
         if(level == 1) // 正常模式
         {
-            if(ADC_Normal[0] > 0.45 && ADC_Normal[3] > 0.45)
+            if(ADC_Normal[0] > 0.5 && ADC_Normal[3] > 0.5)
             {
                 times = 40;      
                 is_shizi = 1;
@@ -115,7 +130,7 @@ void PIT1_IRQHandler(void)
     if( start_flag > 0 ) 
     {
         start_car();
-        delay_flag = 30;
+        delay_flag = 120;
     }
      ///////////////////////////////////////////////////////////////////////////
     else if( level == 40 )
@@ -126,9 +141,16 @@ void PIT1_IRQHandler(void)
             if(wait_flag == 0)
             {
                 turn_car();
-                if( flag == 1 )
+                if( speed_power > 0.5 && wait_flag == 0 ) // 高速情况直接发信号 确认是否可以会车
                 {
                     uart_putchar (UART4,'1');
+                    uart_putchar (UART4,'1');
+                    uart_putchar (UART4,'1');
+                    uart_putchar (UART4,'1');
+                    speed_power = 0.1;
+                }
+                if( flag == 1 )  // 倒车完毕 发信号
+                {
                     uart_putchar (UART4,'1');
                     uart_putchar (UART4,'1');
                     uart_putchar (UART4,'1');
@@ -139,10 +161,11 @@ void PIT1_IRQHandler(void)
             else
             {
                 //start_flag = 800;
-                last_stop = 0; 
-                dis_right = 0;
+                //last_stop = 0; 
+                test_motor();
+                flag = 1;
             }
-        }
+        } 
     }
     ///////////////////////////////////////////////////////////////////////////
     else if( level == 100 ) //回赛道停车
@@ -156,7 +179,8 @@ void PIT1_IRQHandler(void)
     else 
     {
        test_motor();
-       if( (mag_read.mag_y < -3000 || (mag_read.mag_y > 500) ) && (start_flag == 0) && (level != 40) && (level!= 100))
+     //  MAG3110_Read(&mag_read);
+    /*   if( (mag_read.mag_y < -2000 || mag_read.mag_y > 3000 ) && (start_flag == 0) && (level != 40) && (level!= 100) && (ones == 2)  &&(level != 88))
        {
           clj = 1000;
           level = 40;
@@ -164,11 +188,13 @@ void PIT1_IRQHandler(void)
           dis_right = 0;
           last_stop = 0;
           wait_flag = 0;
+          xxxxxx = mag_read.mag_x;
+          yyyyyy = mag_read.mag_y;
        }
        else
        {
           clj = 0;
-       }
+       }*/
     } 
     //test_motor();
    //gpio_turn(PTD15); 
@@ -252,7 +278,7 @@ void PIT3_IRQHandler(void)
  */
 void uart4_test_handler(void)
 {
-
+ 
     if(uart_query(UART4) == 1)   //接收数据寄存器满
     {
       uart_getchar(UART4, &bluetooth_data);//等待接收完//*bluetooth_data = UART_D_REG(UARTN[uratn]);///////////bluetooth_data是一个char型变量，你喜欢干啥就干啥
@@ -260,7 +286,6 @@ void uart4_test_handler(void)
       {
          if( wait_flag == 1 )
          {
-              uart_putchar (UART4,'2'); 
               uart_putchar (UART4,'2'); 
               uart_putchar (UART4,'2'); 
               uart_putchar (UART4,'2'); 
@@ -278,6 +303,15 @@ void uart4_test_handler(void)
          wait_flag = 0;
          start_flag = last_start_flag;
          level = 100;
+         //bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
+      }
+      if(bluetooth_data ==  '8') 
+      {
+       //  avoid_flag_shizi = 0;
+       //  last_start_flag = 0;
+       //  go_flag_shizi = 0;
+         level = 88;
+         flag = 0;
          //bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
       }
     }
