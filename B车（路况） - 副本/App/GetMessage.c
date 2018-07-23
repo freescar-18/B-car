@@ -58,14 +58,14 @@ uint cross_right = 0;
 uint16 round_is=0,round_in=0,round_out=0,round_over=0,round_num=0,round_stop=0,max_PWM_new=0,round_in_count=0,round_stop_flag=1;//round_vaule[3]={0},round_average[2],
 //环岛调整参数
 /////////////////////////////////////////////////////////////////////////////// 
-uint16 round_vaule=1;// round_vaule=0       不入环
+uint16 round_vaule=0;// round_vaule=0       不入环
                        // round_vaule=1       环在左边
                        // round_vaule=2       环在右边
 //识别阈值
 float  round_up_vaule=2.3;
 float round_down_vaule=2.00;
 //刹车强度
-uint8 round_stop_vaule=35;
+uint8 round_stop_vaule=35,round_lr=2;
 
 //////////////////////////////////////////////////////////////////////////////
 //十字相关变量
@@ -616,11 +616,20 @@ void Road_Message()
  ******************************************************************************/
 void Round_about()
 {
+  if((round_vaule==3)&&(round_lr==2))
+  {
+    round_lr=0;
+  }
+  else if((round_vaule==4)&&(round_lr==2))
+  {
+    round_lr=1;
+  }
+  
   //入环判断       round_is==2
   if(round_is==2)
   {
     //环在右侧 
-    if(round_vaule==2)
+    if((round_vaule==2)||(round_lr==1)) 
     {
       none_steerctrl=1;//关闭模糊pid
       steerctrl=608;   //大死角
@@ -663,7 +672,7 @@ void Round_about()
     }
     
     //环在左侧
-    if(round_vaule==1)
+    if((round_vaule==1)||(round_lr==0))
     {
       
       none_steerctrl=1;//关闭模糊pid
@@ -732,7 +741,8 @@ void Round_about()
         times = 200; //误判十字
         is_shizi = 0; //误判十字
         max_PWM=max_PWM_new;//恢复pwm限制
-        
+        if((round_lr==1)||(round_lr==0))
+          round_lr=!round_lr;
         
       }
     }
@@ -741,7 +751,7 @@ void Round_about()
     if(round_out==1)
     {
       //环在右侧 
-      if(round_vaule==2)
+      if((round_vaule==2)||(round_lr==1))
       {
         none_steerctrl=1;//关闭模糊pid
         steerctrl=602;   //大死角
@@ -764,7 +774,7 @@ void Round_about()
       }
       
       //环在左侧
-      else if(round_vaule==1)
+      else if((round_vaule==1)||(round_lr==0))
       {
         
         none_steerctrl=1;//关闭模糊pid

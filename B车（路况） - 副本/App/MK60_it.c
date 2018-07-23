@@ -37,7 +37,7 @@ uint8 last_flag_shizi = 6;
 extern uint8 left_flag;
 extern uint8 right_flag;
 uint16 gameover = 0;
-float last_speed_power = 1;
+float last_speed_power = 0.3;
 uint8 is_shizi = 0;
 extern uint16 clj;
 extern struct _MAG mag_read;
@@ -135,7 +135,7 @@ void PIT1_IRQHandler(void)
      ///////////////////////////////////////////////////////////////////////////
     else if( level == 40 )
     {
-        if(last_stop <= 100)  stop_car();
+        if(last_stop <= 130)  stop_car();
         else 
         {
             if(wait_flag == 0)

@@ -58,7 +58,7 @@ extern float D_power;
 extern uint8 speed_error_power;
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 4400;
+uint16 max_PWM = 5200;
 uint16 i_die = 0;
 extern uint8 level;
 
@@ -257,7 +257,7 @@ void test_motor(void)
       ftm_pwm_duty(MOTOR_FTM, MOTOR2_PWM,0); //输出电机PWM  left-正
       ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
       ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
-      if( ( ADC_Value[0] > 50 || ADC_Value[1] > 50 || ADC_Value[2] > 50 || ADC_Value[3] > 50) && (level != 86) )
+      if( ( ADC_Value[0] > 50 || ADC_Value[1] > 50 || ADC_Value[2] > 50 || ADC_Value[3] > 50) && (level != 100) )
       {
         flag = 0;
       }
