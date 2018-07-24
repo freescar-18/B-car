@@ -44,6 +44,8 @@ extern struct _MAG mag_read;
 extern uint16 turn_car_dis;
 extern uint16 last_start_flag;
 extern int8 ones;
+extern uint16 round_is,round_in,round_over,round_num,round_stop_flag,max_PWM,max_PWM_new,round_lr,round_vaule;
+uint8 round_times = 0;
 /******************************************************************************* 
  *  @brief      PIT0中断服务函数
  *  @note
@@ -87,7 +89,7 @@ void PIT0_IRQHandler(void)
                 if( avoid_flag_shizi == 0)//新策略
                 {
                     speed_power = 1;
-                    times = 200;//滤去多余十字
+                    times = 100;//滤去多余十字
                     is_shizi = 0;
                 }
             }
@@ -208,7 +210,7 @@ void PIT1_IRQHandler(void)
  *  @warning
  ******************************************************************************/
 void PIT2_IRQHandler(void)
-{
+{/*
     last_vol = now_vol;
     if( gpio_get(PTC4) == 1 )
         now_vol = 1;
@@ -229,14 +231,14 @@ void PIT2_IRQHandler(void)
             if( gpio_get(PTC4) == 1 ) //高电平使计数增加5 即高电平时间增加0.5ms
                 car_dis_ms += 10;
             else
-            {   
+            {   */
               /*  car_dis_value[car_dis_times] = 34 * car_dis_ms;
                 if(car_dis_times == 4) car_dis_times = 0;
                 car_dis_times++;
               //  car_dis = 34 * car_dis_ms; //算出超声波距离  mm
                 car_dis = car_dis_value[0] + car_dis_value[1] + car_dis_value[2] + car_dis_value[3] + car_dis_value[4];
                 car_dis_flag = 0; //重置标记位  */
-                if( car_dis < 1500 )   
+            /*    if( car_dis < 1500 )   
 		{
                    // if( start_flag < 5) start_flag = 10;
                     //else if(start_flag < 600) start_flag = start_flag * 3;
@@ -255,7 +257,32 @@ void PIT2_IRQHandler(void)
                 car_dis = 34 * car_dis_ms; 
             }
         }        
-    } 
+    } */
+    if( round_times != 0)
+    {
+        round_times--;
+        if( round_times == 0)
+        {
+            round_in=0;
+            round_is=0;
+            round_over=0;
+           // round_num+=1;
+            if(level == 4) //误判十字
+                level = 88;
+            else if(level == 5) //误判十字
+                level = 1;
+            times = 200; //误判十字
+            is_shizi = 0; //误判十字
+            round_stop_flag=1;
+            max_PWM=max_PWM_new;//恢复pwm限制
+            if((round_lr==1)||(round_lr==0))
+              round_lr=!round_lr;
+        }
+    }  
+    else if(round_is != 0 && round_vaule != 0)
+    {
+        round_times = 8;
+    }
     PIT_Flag_Clear(PIT2);       //清中断标志位
 }
 
@@ -312,6 +339,7 @@ void uart4_test_handler(void)
        //  go_flag_shizi = 0;
          level = 88;
          flag = 0;
+         speed_power = 1;
          //bluetooth_data = 0; //////////////////这里只是为了下次蜂鸣器不响，你想干啥就干啥
       }
     }

@@ -230,7 +230,7 @@ void test_motor(void)
       if( delay_flag > 0 ) 
       {
         delay_flag--;      
-        ftm_pwm_duty(S3010_FTM, S3010_CH,Maxsteering); 
+        ftm_pwm_duty(S3010_FTM, S3010_CH,Maxsteering - 20); 
       }
       else
       {

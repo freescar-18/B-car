@@ -106,7 +106,7 @@ void PORTA_IRQHandler(void)
                 ftm_pwm_duty(MOTOR_FTM, MOTOR3_PWM,0); //输出电机PWM  left-反
                 ftm_pwm_duty(MOTOR_FTM, MOTOR4_PWM,0); //输出电机PWM  right-反
                 DELAY_MS(3000);
-                start_flag = 130;
+                start_flag = 150;
                 flag = 0;
                 level = 1;
              //   level = 88;
@@ -428,7 +428,7 @@ void PORTE_IRQHandler(void)
                   dis_right = 0;
                   if(speed_power < 0.5)
                   {
-                      last_stop = 95;
+                      last_stop = 70;
                   }
                   else
                   {
