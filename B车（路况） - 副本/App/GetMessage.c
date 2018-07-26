@@ -73,6 +73,8 @@ uint16 cross_up=0,crossroad=0,crossroads=0;
 extern uint16 max_PWM;
 extern uint8 is_shizi;
 extern int16 times;
+extern float last_speed_power;
+extern uint8 last_flag_shizi;
 /*******************************************************************************
  *  @brief      MessageProcessing函数
  *  @note       ADC信息采集处理，无归一化 
@@ -495,7 +497,7 @@ void Road_Message()
   }
    if(round_is!=0)
   {
-    speed_pp=0.7;//环岛速度
+    speed_pp=0.85;//环岛速度
   }
   
   //环位置判断      中间电感值>于2.00，说明是环交点处，，，，高进低出，防止电感跃变，产生误判
@@ -531,17 +533,8 @@ void Road_Message()
   }
   
   if(round_is==1)//在环交点处
-  {   
-    if(round_vaule==2)
-    {
-      if(ADC_Normal[4]<=round_down_vaule)   //打角标志       round_down_vaule=1.90
-    {
-      round_is=2;
-    //  round_stop_flag=1;
-    }
-    }
-      
-    else if(ADC_Normal[4]<=round_down_vaule)   //打角标志
+  {    
+     if(ADC_Normal[4]<=round_down_vaule)   //打角标志
     {
       round_is=2;
     //  round_stop_flag=1;
@@ -629,10 +622,10 @@ void Round_about()
   if(round_is==2)
   {
     //环在右侧 
-    if((round_vaule==2)||(round_lr==1)) 
+    if((round_vaule==2)||((round_lr==1)&&((round_vaule==3)||(round_vaule==4))))
     {
       none_steerctrl=1;//关闭模糊pid
-      steerctrl=608;   //大死角
+      steerctrl=601;   //大死角
       // speed_round= -13;//      强制差数
       
       
@@ -672,7 +665,7 @@ void Round_about()
     }
     
     //环在左侧
-    if((round_vaule==1)||(round_lr==0))
+    if((round_vaule==1)||((round_lr==0)&&((round_vaule==3)||(round_vaule==4))))
     {
       
       none_steerctrl=1;//关闭模糊pid
@@ -751,7 +744,7 @@ void Round_about()
     if(round_out==1)
     {
       //环在右侧 
-      if((round_vaule==2)||(round_lr==1))
+      if((round_vaule==2)||((round_lr==1)&&((round_vaule==3)||(round_vaule==4))))
       {
         none_steerctrl=1;//关闭模糊pid
         steerctrl=602;   //大死角
@@ -774,7 +767,7 @@ void Round_about()
       }
       
       //环在左侧
-      else if((round_vaule==1)||(round_lr==0))
+      else if((round_vaule==1)||((round_lr==0)&&((round_vaule==3)||(round_vaule==4))))
       {
         
         none_steerctrl=1;//关闭模糊pid
@@ -794,5 +787,14 @@ void Round_about()
         }
       }
     }
+  }
+  if( level == 1 )
+  {
+      if( round_num == 1 )
+          if( last_flag_shizi == 11)
+              speed_power = last_speed_power;
+      if( round_num == 2 )
+          if( last_flag_shizi == 12)
+              speed_power = last_speed_power;
   }
 }

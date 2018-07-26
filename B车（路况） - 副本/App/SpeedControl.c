@@ -38,8 +38,8 @@ float speed_ecRule[5] = {0,10,20,30,40}; //输入误差的变化率（speed_fec）的范围
 //float speed_Rule[5] = {18,19,20,21,22}; //输出预测速度（speed_forecast）的范围 
 //float speed_error_Rule[5] = {7,6,5,4,0};  //预测速度偏差的范围
                                           //
-float speed_Rule[5] = {40,46,47,48,49}; //输出预测速度（speed_forecast）的范围 
-float speed_error_Rule[5] = {32,21,13,3,0};  //预测速度偏差的范围
+float speed_Rule[5] = {38,44,47,48,49}; //输出预测速度（speed_forecast）的范围 
+float speed_error_Rule[5] = {35,24,16,4,0};  //预测速度偏差的范围
 int speed_rule[6][6] =   //速度规则表
 {
   //ec 0 1 2 3 4  //e
