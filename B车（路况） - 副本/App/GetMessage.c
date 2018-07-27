@@ -62,8 +62,8 @@ uint16 round_vaule=0;// round_vaule=0       不入环
                        // round_vaule=1       环在左边
                        // round_vaule=2       环在右边
 //识别阈值
-float  round_up_vaule=2.4;
-float round_down_vaule=2.10;
+float  round_up_vaule=2.32;
+float round_down_vaule=2.05;
 //刹车强度
 uint8 round_stop_vaule=35,round_lr=2;
 
