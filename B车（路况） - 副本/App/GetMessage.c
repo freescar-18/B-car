@@ -62,8 +62,8 @@ uint16 round_vaule=0;// round_vaule=0       不入环
                        // round_vaule=1       环在左边
                        // round_vaule=2       环在右边
 //识别阈值
-float  round_up_vaule=2.3;
-float round_down_vaule=2.00;
+float  round_up_vaule=2.4;
+float round_down_vaule=2.10;
 //刹车强度
 uint8 round_stop_vaule=35,round_lr=2;
 
@@ -75,6 +75,7 @@ extern uint8 is_shizi;
 extern int16 times;
 extern float last_speed_power;
 extern uint8 last_flag_shizi;
+float round_shizi = 0.7;
 /*******************************************************************************
  *  @brief      MessageProcessing函数
  *  @note       ADC信息采集处理，无归一化 
@@ -713,7 +714,7 @@ void Round_about()
   if(round_in==1)
   {
     //
-    if((ADC_Normal[0] >= 0.900)&&(ADC_Normal[3] >= 0.900))
+    if((ADC_Normal[0] >= round_shizi)&&(ADC_Normal[3] >= round_shizi))
     {
       round_out=1;//出环标志
     }

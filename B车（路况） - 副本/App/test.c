@@ -58,7 +58,7 @@ extern float D_power;
 extern uint8 speed_error_power;
 extern uint16 delay_flag;
 int16 first_steerctrl;
-uint16 max_PWM = 5200;
+uint16 max_PWM = 5000;
 uint16 i_die = 0;
 extern uint8 level;
 

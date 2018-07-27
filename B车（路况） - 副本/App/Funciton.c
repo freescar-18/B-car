@@ -73,6 +73,7 @@ uint16 turn_car_dis = 4000;
 uint16 last_start_flag = 300;
 extern struct _MAG mag_read;
 extern float eRule[5];
+
 /////////////////////////////////////////////////////////////////////////////// 
 extern uint16 round_vaule;// round_vaule=0       不入环
                        // round_vaule=1       环在左边
@@ -82,6 +83,7 @@ extern float  round_up_vaule;
 extern float round_down_vaule;
 //刹车强度
 extern uint8 round_stop_vaule;
+extern float round_shizi;
 uint8 page_line = 1;
 /*******************************************************************************
  *  @brief      beep_on函数
@@ -214,12 +216,15 @@ void oled_view(void)
          LED_PrintValueF(85,4,round_down_vaule,3);
          LED_P6x8Str(15,5,"round_stop"); 
          LED_PrintShort(85,5,round_stop_vaule); 
+         LED_P6x8Str(15,6,"round_shizi");
+         LED_PrintValueF(85,6,round_shizi,3); 
          if( page_line == 1)
          {
             LED_P6x8Str(4,2,"o");
             LED_P6x8Str(4,3,"x");
             LED_P6x8Str(4,4,"x");
             LED_P6x8Str(4,5,"x");
+            LED_P6x8Str(4,6,"x");
          }
          else if( page_line == 2)
          {
@@ -227,6 +232,7 @@ void oled_view(void)
             LED_P6x8Str(4,3,"o");
             LED_P6x8Str(4,4,"x");
             LED_P6x8Str(4,5,"x");
+            LED_P6x8Str(4,6,"x");
          }
          else if( page_line == 3)
          {
@@ -234,6 +240,7 @@ void oled_view(void)
             LED_P6x8Str(4,3,"x");
             LED_P6x8Str(4,4,"o");
             LED_P6x8Str(4,5,"x");
+            LED_P6x8Str(4,6,"x");
          }
          else if( page_line == 4)
          {
@@ -241,6 +248,15 @@ void oled_view(void)
             LED_P6x8Str(4,3,"x");
             LED_P6x8Str(4,4,"x");
             LED_P6x8Str(4,5,"o");
+            LED_P6x8Str(4,6,"x");
+         }
+         else if( page_line == 5)
+         {
+            LED_P6x8Str(4,2,"x");
+            LED_P6x8Str(4,3,"x");
+            LED_P6x8Str(4,4,"x");
+            LED_P6x8Str(4,5,"x");
+            LED_P6x8Str(4,6,"o");
          }
          switch_mode = 4;
      }
@@ -375,7 +391,7 @@ void write_flash(void)
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 28, (uint16)last_flag_shizi ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
-    flash_write(SECTOR_NUM, 32, (uint16)(last_speed_power * 10) ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    flash_write(SECTOR_NUM, 32, (uint16)(last_speed_power * 100) ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 36, max_PWM ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
@@ -391,6 +407,9 @@ void write_flash(void)
     DELAY_MS(50);
     flash_write(SECTOR_NUM, 60, (uint16) round_stop_vaule ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
     DELAY_MS(50);
+    flash_write(SECTOR_NUM, 64, (uint16)(round_shizi * 100) ) ;  //写入数据到扇区，偏移地址为12，必须一次写入4字节
+    DELAY_MS(50);
+   
     
     write_flash_flag = 1;
 }
@@ -410,7 +429,7 @@ void read_flash(void)
     avoid_flag_shizi = flash_read(SECTOR_NUM, 20, uint16); 
     go_flag_shizi    = flash_read(SECTOR_NUM, 24, uint16); 
     last_flag_shizi  = flash_read(SECTOR_NUM, 28, uint16); 
-    last_speed_power = ((float)(flash_read(SECTOR_NUM, 32, uint16))) / 10; 
+    last_speed_power = ((float)(flash_read(SECTOR_NUM, 32, uint16))) / 100; 
     max_PWM          = flash_read(SECTOR_NUM, 36, uint16); 
     turn_car_dis     = flash_read(SECTOR_NUM, 40, uint16); 
     last_start_flag  = flash_read(SECTOR_NUM, 44, uint16); 
@@ -418,6 +437,7 @@ void read_flash(void)
     round_up_vaule   = ((float)(flash_read(SECTOR_NUM, 52, uint16))) / 100;
     round_down_vaule = ((float)(flash_read(SECTOR_NUM, 56, uint16))) / 100;
     round_stop_vaule = flash_read(SECTOR_NUM, 60, uint16);
+    round_shizi = ((float)(flash_read(SECTOR_NUM, 64, uint16))) / 100;
     read_flash_flag  = 1;
 }
 

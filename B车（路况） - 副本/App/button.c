@@ -66,6 +66,7 @@ extern uint8 round_stop_vaule;
 extern uint8 page_line;
 extern uint8 write_flash_flag;
 extern uint8 read_flash_flag;
+extern float round_shizi;
 /*******************************************************************************
  *  @brief      PORT的参考中断服务函数
  *  @since      v5.0
@@ -138,6 +139,8 @@ void PORTA_IRQHandler(void)
              round_down_vaule -= 0.03;
            else if( page_line == 4)
              round_stop_vaule -= 3;
+           else if( page_line == 5)
+             round_shizi -= 0.05;
            DELAY_MS(300);
         }
         else if(switch_mode == 5)//显示屏5
@@ -295,6 +298,8 @@ void PORTB_IRQHandler(void)
              round_down_vaule += 0.03;
            else if( page_line == 4)
              round_stop_vaule += 3;
+           else if( page_line == 5)
+             round_shizi += 0.05;
            DELAY_MS(300);
         }
         else if(switch_mode == 5)//显示屏5
@@ -365,7 +370,7 @@ void PORTB_IRQHandler(void)
         }
         else if(switch_mode == 4)//显示屏4
         {
-           if( page_line != 4)
+           if( page_line != 5)
               page_line++;
             DELAY_MS(300);
         }
